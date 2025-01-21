@@ -1,9 +1,0 @@
-/home/nischay/Documents/a1-main/build/CMakeFiles/a1.dir
-/home/nischay/Documents/a1-main/build/CMakeFiles/e1.dir
-/home/nischay/Documents/a1-main/build/CMakeFiles/e2.dir
-/home/nischay/Documents/a1-main/build/CMakeFiles/e3.dir
-/home/nischay/Documents/a1-main/build/CMakeFiles/e4.dir
-/home/nischay/Documents/a1-main/build/CMakeFiles/e5.dir
-/home/nischay/Documents/a1-main/build/CMakeFiles/e6.dir
-/home/nischay/Documents/a1-main/build/CMakeFiles/edit_cache.dir
-/home/nischay/Documents/a1-main/build/CMakeFiles/rebuild_cache.dir
