@@ -182,14 +182,22 @@ namespace COL781 {
 				if( d == 4)
 				{
 					glm::vec4 vals_vec4(vals[0], vals[1], vals[2], vals[3]);
-					object.vertexAttributes[attribIndex] = Attribs(); 
-					object.vertexAttributes[attribIndex].set(attribIndex, vals_vec4);
-				}
-				else if( d == 3)
+					object.vertexAttributes[i] = Attribs(); 
+					object.vertexAttributes[i].set(attribIndex, vals_vec4);
+				}else if( d == 3)
 				{
 					glm::vec3 vals_vec3(vals[0], vals[1], vals[2]);
-					object.vertexAttributes[attribIndex] = Attribs(); 
-					object.vertexAttributes[attribIndex].set(attribIndex, vals_vec3);
+					object.vertexAttributes[i] = Attribs(); 
+					object.vertexAttributes[i].set(attribIndex, vals_vec3);
+				}else if( d == 2)
+				{
+					glm::vec2 vals_vec2(vals[0], vals[1]);
+					object.vertexAttributes[i] = Attribs(); 
+					object.vertexAttributes[i].set(attribIndex, vals_vec2);
+				}else if( d == 1)
+				{
+					object.vertexAttributes[i] = Attribs(); 
+					object.vertexAttributes[i].set(attribIndex, vals[0]);
 				}
 			}
 		}
@@ -204,6 +212,22 @@ namespace COL781 {
 				object.indices[i] = vals;
 			}
 		};
+
+		void Rasterizer::setTriangleIndices(Object &object, int n, int* indices)
+		{
+
+		}
+
+		
+		void Rasterizer::clear(glm::vec4 color)
+		{
+			
+		}
+
+		bool Rasterizer::shouldQuit()
+		{
+			return quit;
+		}
 
 	}
 }
