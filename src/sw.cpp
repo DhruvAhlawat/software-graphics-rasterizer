@@ -38,8 +38,8 @@ namespace COL781 {
 		VertexShader Rasterizer::vsColor() {
 			return [](const Uniforms &uniforms, const Attribs &in, Attribs &out) {
 				glm::vec4 vertex = in.get<glm::vec4>(0);
-				glm::vec4 color = in.get<glm::vec4>(1);
-				out.set<glm::vec4>(0, color);
+				// glm::vec4 color = in.get<glm::vec4>(1);
+				// out.set<glm::vec4>(1, color);
 				return vertex;
 			};
 		}
@@ -62,6 +62,7 @@ namespace COL781 {
 
 		void checkDimension(int index, int actual, int requested) {
 			if (actual != requested) {
+				// std::cout << "index "
 				std::cout << "Warning: attribute " << index << " has dimension " << actual << " but accessed as dimension " << requested << std::endl;
 			}
 		}
@@ -82,7 +83,7 @@ namespace COL781 {
 		}
 
 		template <> glm::vec4 Attribs::get(int index) const {
-			checkDimension(index, dims[index], 4);
+			checkDimension(index, dims[index], 4); 
 			return values[index];
 		}
 
@@ -121,13 +122,18 @@ namespace COL781 {
 		}
 
 		template <typename T> T Uniforms::get(const std::string &name) const {
+			if (!values.count(name))
+			{
+				throw std::runtime_error("name not found in Uniform");
+			}
 			return *(T*)values.at(name);
 		}
 
 		template <typename T> void Uniforms::set(const std::string &name, T value) {
+
 			auto it = values.find(name);
 			if (it != values.end()) {
-				delete it->second;
+				delete it->second; //deleeting the object contained in this location.
 			}
 			values[name] = (void*)(new T(value));
 		}
@@ -160,7 +166,7 @@ namespace COL781 {
 			ShaderProgram program;
 			program.vs = vs;
 			program.fs = fs;
-			// What about Uniforms? created by default :) 
+			// What about Uniforms? created by default and set later :) 
 			return program; 
 		}
 
@@ -173,6 +179,7 @@ namespace COL781 {
 		void Rasterizer::setVertexAttribs(Object &object, int attribIndex, int n, int d, const float* data)
 		{
 			// object.vertexAttributes.clear();
+			std::cout << "setting vertex attributes with dimension" << d << std::endl;
 			if(object.vertexAttributes.size() != n) //INcase size doesn't match, it erases all vertex attributes
 			{
 				object.vertexAttributes = std::vector<Attribs>(n);
@@ -184,24 +191,21 @@ namespace COL781 {
 				{
 					vals.push_back(data[i*d + j]);
 				}
+				object.vertexAttributes[i] = Attribs(); 
 				if( d == 4)
 				{
 					glm::vec4 vals_vec4(vals[0], vals[1], vals[2], vals[3]);
-					object.vertexAttributes[i] = Attribs(); 
 					object.vertexAttributes[i].set(attribIndex, vals_vec4);
 				}else if( d == 3)
 				{
 					glm::vec3 vals_vec3(vals[0], vals[1], vals[2]);
-					object.vertexAttributes[i] = Attribs(); 
 					object.vertexAttributes[i].set(attribIndex, vals_vec3);
 				}else if( d == 2)
 				{
 					glm::vec2 vals_vec2(vals[0], vals[1]);
-					object.vertexAttributes[i] = Attribs(); 
 					object.vertexAttributes[i].set(attribIndex, vals_vec2);
 				}else if( d == 1)
 				{
-					object.vertexAttributes[i] = Attribs(); 
 					object.vertexAttributes[i].set(attribIndex, vals[0]);
 				}
 			}
@@ -233,22 +237,106 @@ namespace COL781 {
 
 		void Rasterizer::useShaderProgram(const ShaderProgram &program)
 		{
-			if (currentShader == nullptr) {
-        	currentShader = new ShaderProgram;
-			}
-			*currentShader = program;
+			// *currentShader = program;
+			currentShader = (ShaderProgram*)&program;
 		}
 		
 		void Rasterizer::deleteShaderProgram(ShaderProgram &program)
 		{
-			currentShader = nullptr;
+			// delete currentShader;
+			// currentShader = NULL;
 		}
+		Uint32 Rasterizer::colorLerp(Uint32 c1, Uint32 c2, float t) // t must be between 0 and 1. 
+		{
+		    Uint8 r1, g1, b1, a1;
+		    Uint8 r2, g2, b2, a2;
+		    SDL_GetRGBA(c1, framebuffer->format, &r1, &g1, &b1, &a1);
+		    SDL_GetRGBA(c2, framebuffer->format, &r2, &g2, &b2, &a2);
+
+		    return SDL_MapRGBA(framebuffer->format, r1 + (r2 - r1) * t, g1 + (g2 - g1) * t, b1 + (b2 - b1) * t, a1 + (a2 - a1) * t);
+		}
+
+		float areaTriangle(glm::vec2 v0, glm::vec2 v1, glm::vec2 v2)
+		{
+			return (v1.x - v0.x) * (v2.y - v0.y) - (v2.x - v0.x) * (v1.y - v0.y);
+		}
+
+		void Rasterizer::drawTriangle(triangle t, int supersampling)
+		{
+			Uint32 *pixels = (Uint32*)framebuffer->pixels;
+		    int x_min = std::min(std::min(t.v[0].x, t.v[1].x), t.v[2].x);
+		    int x_max = std::max(std::max(t.v[0].x, t.v[1].x), t.v[2].x);
+		    int y_min = std::min(std::min(t.v[0].y, t.v[1].y), t.v[2].y);
+		    int y_max = std::max(std::max(t.v[0].y, t.v[1].y), t.v[2].y);
+			float totalArea = areaTriangle(t.v[0], t.v[1], t.v[2]);
+		    //supersampling. 
+		    int total = supersampling * supersampling; 
+		    for (int x = x_min; x <= x_max; x++)
+		    {
+		        for(int y = y_min; y <= y_max; y++)
+		        {
+		            float x_supersampled = x;
+		            float y_supersampled = y;
+		            int count = 0;
+		            for (int i = 0; i < supersampling; i++)
+		            {
+		                for (int j = 0; j < supersampling; j++)
+						{    
+		                    glm::vec2 p((float)x_supersampled + ((float)i)/supersampling, (float)y_supersampled + ((float)j)/supersampling);
+		     				// glm::vec2 x(0,1);               
+							if (t.inside(p))
+		                    {
+		                        count++;
+		                    }
+		                }
+		            }
+		            if (count > 0)
+		            {	
+						//Works in 2d. the color gradient that I am providing right now. 
+						float a = areaTriangle(glm::vec2(x,y), t.v[1], t.v[2])/totalArea;
+						float b = areaTriangle(t.v[0], glm::vec2(x,y), t.v[2])/totalArea;
+						float c = areaTriangle(t.v[0], t.v[1], glm::vec2(x,y))/totalArea;
+						glm::vec4 color = a*t.color[0] + b*t.color[1] + c*t.color[2];
+						//calculate the gradient over here using the formula of area with this as the dividing point.
+						Uint32 colorUint = SDL_MapRGBA(framebuffer->format, (Uint8)(color.r * 255), (Uint8)(color.g * 255), (Uint8)(color.b * 255), (Uint8)(color.a * 255));
+		                pixels[x + frameWidth*y] = colorUint; // colorLerp(pixels[x + frameWidth*y], color,  (float)count/(float)total);
+		            }
+		        }
+		    }
+		}
+
 
 		void Rasterizer::drawObject(const Object &object)
 		{
-			//draw the object.
-			//we will draw the object using the vertex shader and fragment shader
+			// //draw the object.
+			// //we will draw the object using the vertex shader and fragment shader
+			// //use the shaders from the currentShader. 
+			int cntVert = object.vertexAttributes.size();	
+			std::vector<Attribs> screenVertAttributes;
+			for(int i = 0; i < cntVert; i++)
+			{
+				screenVertAttributes.push_back(object.vertexAttributes[i]);
+				glm::vec4 screenPos = currentShader->vs(currentShader->uniforms, object.vertexAttributes[i], screenVertAttributes[i]);
+				screenVertAttributes[i].set(0, screenPos);
+				// printf("yoyo");
+			}
+			//color determined from the fragment shader
+			//now we go over all the triangles and draw the object.
+			//DRAW the object.
+			for(int i = 0; i < object.indices.size(); i++)
+			{
+				//drawing triangles one by one without considering clipping for now.
+				triangle t(glm::vec2(screenVertAttributes[object.indices[i].x].get<glm::vec4>(0)), glm::vec2(screenVertAttributes[object.indices[i].y].get<glm::vec4>(0)), glm::vec2(screenVertAttributes[object.indices[i].z].get<glm::vec4>(0)));
+				for(int tvert = 0; tvert < 3; tvert++)
+				{
+					//updating the positions from 0-1 to screen space. and updating the vertex colors.
+					t.v[tvert].x = (t.v[tvert].x + 1)* frameWidth/2; t.v[tvert].y = (-t.v[tvert].y + 1)* frameHeight/2; //from 0-1 to screen space transform that is required. maybe should do this in some vector way?
+					t.color[tvert] = glm::vec4(1,0,1,1);
+					// currentShader->fs(currentShader->uniforms, screenVertAttributes[object.indices[i][tvert]]);
+				} 				
 
+				drawTriangle(t,1); //draw the triangle.
+			}	
 		}
 	
 		template <> void Rasterizer::setUniform(ShaderProgram &program, const std::string &name, glm::vec4 value)

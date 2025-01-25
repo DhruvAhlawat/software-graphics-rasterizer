@@ -1,7 +1,7 @@
 #include "../src/a1.hpp"
 
-// namespace R = COL781::Software;
-namespace R = COL781::Hardware;
+namespace R = COL781::Software;
+// namespace R = COL781::Hardware;
 using namespace glm;
 
 int main() {
@@ -11,6 +11,7 @@ int main() {
     R::ShaderProgram program = r.createShaderProgram(
         r.vsColor(),
         r.fsIdentity()
+        // r.fsConstant()
     );
 
     float vertices[] = {
@@ -39,6 +40,7 @@ int main() {
     while (!r.shouldQuit()) {
         r.clear(vec4(1.0, 1.0, 1.0, 1.0));
         r.useShaderProgram(program);
+        // r.setUniform<vec4>(program, "color", vec4(1.0, 0.4, 0.4, 1.0));
 		r.drawObject(shape);
         r.show();
     }

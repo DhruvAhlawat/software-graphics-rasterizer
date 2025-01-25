@@ -52,10 +52,42 @@ namespace COL781 {
 			std::vector<Attribs> vertexAttributes;
 			std::vector<glm::ivec3> indices;
 		};
+		class triangle
+		{
+			public:
+			glm::vec2 v[3]; //vertices of the triangle
+			glm::vec4 color[3]; //colors of the vertices
+			triangle(glm::vec2 v0,glm::vec2 v1,glm::vec2 v2) {v[0] = v0; v[1] = v1; v[2] = v2;}
+			triangle(glm::vec2 verts[3], glm::vec4 col[3]) 
+			{
+				for(int i = 0; i < 3; i++)
+				{
+					v[i] = verts[i];
+					color[i] = col[i];
+				}
+			}
 
+			float area() const 
+			{ return (v[1].x - v[0].x) * (v[2].y - v[0].y) - (v[2].x - v[0].x) * (v[1].y - v[0].y); } //area of the triangle
+
+
+			bool inside(glm::vec2 p) const 
+			{ //write this 
+				float a = (v[1].x - v[0].x) * (p.y - v[0].y) - (p.x - v[0].x) * (v[1].y - v[0].y);
+				float b = (v[2].x - v[1].x) * (p.y - v[1].y) - (p.x - v[1].x) * (v[2].y - v[1].y);
+				float c = (v[0].x - v[2].x) * (p.y - v[2].y) - (p.x - v[2].x) * (v[0].y - v[2].y);
+				if (a >= 0 && b >= 0 && c >= 0) return 1;
+				if (a <= 0 && b <= 0 && c <= 0) return 1;
+				return 0;
+			} //checks if the point is inside the triangle
+		};
 		class Rasterizer {
 		public:
 		#include "api.inc"
+
+		Uint32 colorLerp(Uint32 c1, Uint32 c2, float t); // t must be between 0 and 1. 
+		void drawTriangle(triangle t, int supersampling = 1);
+
 		private:
 			SDL_Window *window;
 			bool quit;
@@ -65,7 +97,7 @@ namespace COL781 {
 			int frameWidth, frameHeight, spp;
 			SDL_Surface *windowSurface;
 			SDL_Surface *framebuffer;
-			ShaderProgram *currentShader;
+			ShaderProgram *currentShader = nullptr;
 		};
 		
 
