@@ -154,7 +154,6 @@ namespace COL781 {
 			return true; //successfully created the window and framebuffer.
 		}
 
-
 		ShaderProgram Rasterizer::createShaderProgram(const VertexShader &vs, const FragmentShader &fs)
 		{
 			ShaderProgram program;
@@ -233,19 +232,36 @@ namespace COL781 {
 
 		void Rasterizer::useShaderProgram(const ShaderProgram &program)
 		{
-			currentShader = program;
+			*currentShader = program;
 		}
-
-
 		
-		template <typename T> void Rasterizer::setUniform(ShaderProgram &program, const std::string &name, T value)
+		// void Rasterizer::deleteShaderProgram(ShaderProgram &program);
+		// {
+		// 	// delete currentShader;
+		// 	// currentShader = NULL;
+		// }
+
+		void Rasterizer::drawObject(const Object &object)
 		{
-			program.uniforms.set<T>(name, value);
+			//draw the object.
+			//we will draw the object using the vertex shader and fragment shader
+
+		}
+	
+		template <> void Rasterizer::setUniform(ShaderProgram &program, const std::string &name, glm::vec4 value)
+		{
+			program.uniforms.set<glm::vec4>(name, value);
 		}
 
 		bool Rasterizer::shouldQuit()
 		{
 			return quit;
+		}
+
+		void Rasterizer::show()
+		{
+			SDL_BlitScaled(framebuffer, NULL, windowSurface, NULL);
+			SDL_UpdateWindowSurface(window);
 		}
 
 	}

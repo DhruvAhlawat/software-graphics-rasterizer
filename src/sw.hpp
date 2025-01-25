@@ -65,7 +65,7 @@ namespace COL781 {
 			int frameWidth, frameHeight, spp;
 			SDL_Surface *windowSurface;
 			SDL_Surface *framebuffer;
-			ShaderProgram currentShader;
+			ShaderProgram *currentShader;
 		};
 		
 
