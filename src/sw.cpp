@@ -150,6 +150,7 @@ namespace COL781 {
 			}
 			windowSurface = SDL_GetWindowSurface(window);
 			framebuffer = SDL_CreateRGBSurface(0, width, height, 32, 0, 0, 0, 0);
+			Rasterizer::quit = false;
 			this->frameWidth = width; this->frameHeight = height; this->spp = spp;
 			return true; //successfully created the window and framebuffer.
 		}
@@ -235,11 +236,11 @@ namespace COL781 {
 			*currentShader = program;
 		}
 		
-		// void Rasterizer::deleteShaderProgram(ShaderProgram &program);
-		// {
-		// 	// delete currentShader;
-		// 	// currentShader = NULL;
-		// }
+		void Rasterizer::deleteShaderProgram(ShaderProgram &program)
+		{
+			// delete currentShader;
+			// currentShader = nullptr;
+		}
 
 		void Rasterizer::drawObject(const Object &object)
 		{
@@ -255,14 +256,25 @@ namespace COL781 {
 
 		bool Rasterizer::shouldQuit()
 		{
-			return quit;
+			return Rasterizer::quit;
 		}
-
+		bool handleEvents(bool quit){
+				SDL_Event e;
+				while (SDL_PollEvent(&e) != 0) {
+					if (e.type == SDL_QUIT) {
+						return true;
+					}
+				}
+				return false;
+			}
+		
 		void Rasterizer::show()
 		{
 			SDL_BlitScaled(framebuffer, NULL, windowSurface, NULL);
 			SDL_UpdateWindowSurface(window);
+			if (handleEvents(Rasterizer::quit)){
+				Rasterizer::quit = true;
+			};
 		}
-
 	}
 }
