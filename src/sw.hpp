@@ -55,12 +55,17 @@ namespace COL781 {
 
 		class Rasterizer {
 		public:
-#include "api.inc"
+		#include "api.inc"
 		private:
 			SDL_Window *window;
 			bool quit;
 			// Create window and rasterizer attributes here
 		};
+		
+
+
+		// Functions we gotta create. 
+
 
 	}
 }

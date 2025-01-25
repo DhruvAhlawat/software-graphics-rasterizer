@@ -9,7 +9,7 @@ find_package(SDL2 REQUIRED)
 
 add_library(a1 src/hw.cpp src/sw.cpp deps/src/gl.c)
 target_include_directories(a1 PUBLIC deps/include)
-target_link_libraries(a1 glm OpenGL::GL SDL2::SDL2)
+target_link_libraries(a1 glm::glm OpenGL::GL SDL2::SDL2)
 
 add_executable(e1 examples/e1.cpp)
 target_link_libraries(e1 a1)

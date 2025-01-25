@@ -131,6 +131,29 @@ namespace COL781 {
 			}
 			values[name] = (void*)(new T(value));
 		}
+		//
+		// Create the object.
+		// API functions implemented.
+
+		bool Rasterizer::initialize(const std::string &title, int width, int height, int spp)
+		{
+			window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_OPENGL);
+			if (!window) {
+				std::cerr << "Could not create window: " << SDL_GetError() << std::endl;
+				return false;
+			}
+			// if (!SDL_GL_CreateContext(window)) {
+			// 	std::cerr << "Could not create OpenGL context: " << SDL_GetError() << std::endl;
+			// 	return false;
+			// }
+			return true;
+		}
+
+		Object Rasterizer::createObject()
+		{
+			Object obj;
+			return obj; //this should be it?
+		}
 
 	}
 }
