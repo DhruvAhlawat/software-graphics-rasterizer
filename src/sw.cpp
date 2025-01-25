@@ -233,13 +233,15 @@ namespace COL781 {
 
 		void Rasterizer::useShaderProgram(const ShaderProgram &program)
 		{
+			if (currentShader == nullptr) {
+        	currentShader = new ShaderProgram;
+			}
 			*currentShader = program;
 		}
 		
 		void Rasterizer::deleteShaderProgram(ShaderProgram &program)
 		{
-			// delete currentShader;
-			// currentShader = nullptr;
+			currentShader = nullptr;
 		}
 
 		void Rasterizer::drawObject(const Object &object)
