@@ -148,8 +148,10 @@ namespace COL781 {
 				std::cerr << "Could not create window: " << SDL_GetError() << std::endl;
 				return false;
 			}
-			
-			return true;
+			windowSurface = SDL_GetWindowSurface(window);
+			framebuffer = SDL_CreateRGBSurface(0, width, height, 32, 0, 0, 0, 0);
+			this->frameWidth = width; this->frameHeight = height; this->spp = spp;
+			return true; //successfully created the window and framebuffer.
 		}
 
 
@@ -216,15 +218,29 @@ namespace COL781 {
 			}
 		};
 
-		void Rasterizer::setTriangleIndices(Object &object, int n, int* indices)
-		{
-
-		}
-
-		
 		void Rasterizer::clear(glm::vec4 color)
 		{
+			//clear the screen, so we set all the values in the framebuffer to the color.
+            Uint32 *pixels = (Uint32*)framebuffer->pixels;
+            SDL_PixelFormat *format = framebuffer->format;
+			Uint32 colorUint = SDL_MapRGBA(format, (Uint8)(color.r * 255), (Uint8)(color.g * 255), (Uint8)(color.b * 255), (Uint8)(color.a * 255));
+    		for (int x = 0; x < frameWidth; x++) {
+                for (int y = 0; y < frameHeight; y++) {
+                    pixels[x + frameWidth*y] = colorUint;
+                }
+            }
+		}
 
+		void Rasterizer::useShaderProgram(const ShaderProgram &program)
+		{
+			currentShader = program;
+		}
+
+
+		
+		template <typename T> void Rasterizer::setUniform(ShaderProgram &program, const std::string &name, T value)
+		{
+			program.uniforms.set<T>(name, value);
 		}
 
 		bool Rasterizer::shouldQuit()

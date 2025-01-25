@@ -60,6 +60,12 @@ namespace COL781 {
 			SDL_Window *window;
 			bool quit;
 			// Create window and rasterizer attributes here
+
+			//additional attributes.
+			int frameWidth, frameHeight, spp;
+			SDL_Surface *windowSurface;
+			SDL_Surface *framebuffer;
+			ShaderProgram currentShader;
 		};
 		
 
