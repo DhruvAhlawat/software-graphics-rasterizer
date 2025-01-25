@@ -193,6 +193,17 @@ namespace COL781 {
 				}
 			}
 		}
+		void Rasterizer::setTriangleIndices(Object &object, int n, int* indices){
+			if (object.indices.size() != n)
+			{
+				object.indices = std::vector<glm::ivec3>(n);
+			}
+			for(int i = 0; i < n; i++)
+			{
+				glm::ivec3 vals(indices[3*i], indices[3*i + 1], indices[3*i + 2]);
+				object.indices[i] = vals;
+			}
+		};
 
 	}
 }
