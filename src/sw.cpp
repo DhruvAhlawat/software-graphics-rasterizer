@@ -137,15 +137,18 @@ namespace COL781 {
 
 		bool Rasterizer::initialize(const std::string &title, int width, int height, int spp)
 		{
-			window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_OPENGL);
+			//since we have a specific spp (samples per pixel), we will update our screen size appropriately.
+			bool successful = true; 
+		 	if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
+        		printf("SDL could not initialize! SDL_Error: %s", SDL_GetError());
+        		return false;
+			}
+			window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width * spp, height * spp, SDL_WINDOW_SHOWN);
 			if (!window) {
 				std::cerr << "Could not create window: " << SDL_GetError() << std::endl;
 				return false;
 			}
-			// if (!SDL_GL_CreateContext(window)) {
-			// 	std::cerr << "Could not create OpenGL context: " << SDL_GetError() << std::endl;
-			// 	return false;
-			// }
+			
 			return true;
 		}
 
@@ -221,7 +224,7 @@ namespace COL781 {
 		
 		void Rasterizer::clear(glm::vec4 color)
 		{
-			
+
 		}
 
 		bool Rasterizer::shouldQuit()
