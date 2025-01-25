@@ -149,10 +149,49 @@ namespace COL781 {
 			return true;
 		}
 
+
+		ShaderProgram Rasterizer::createShaderProgram(const VertexShader &vs, const FragmentShader &fs)
+		{
+			ShaderProgram program;
+			program.vs = vs;
+			program.fs = fs;
+			// What about Uniforms? created by default :) 
+			return program; 
+		}
+
 		Object Rasterizer::createObject()
 		{
 			Object obj;
 			return obj; //this should be it?
+		}
+
+		void Rasterizer::setVertexAttribs(Object &object, int attribIndex, int n, int d, const float* data)
+		{
+			// object.vertexAttributes.clear();
+			if(object.vertexAttributes.size() != n) //INcase size doesn't match, it erases all vertex attributes
+			{
+				object.vertexAttributes = std::vector<Attribs>(n);
+			}
+			for(int i = 0; i < n; i++)
+			{
+				std::vector<float> vals;
+				for(int j = 0; j < d; j++)
+				{
+					vals.push_back(data[i*d + j]);
+				}
+				if( d == 4)
+				{
+					glm::vec4 vals_vec4(vals[0], vals[1], vals[2], vals[3]);
+					object.vertexAttributes[attribIndex] = Attribs(); 
+					object.vertexAttributes[attribIndex].set(attribIndex, vals_vec4);
+				}
+				else if( d == 3)
+				{
+					glm::vec3 vals_vec3(vals[0], vals[1], vals[2]);
+					object.vertexAttributes[attribIndex] = Attribs(); 
+					object.vertexAttributes[attribIndex].set(attribIndex, vals_vec3);
+				}
+			}
 		}
 
 	}
