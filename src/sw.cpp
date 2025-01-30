@@ -178,8 +178,7 @@ namespace COL781 {
 
 		void Rasterizer::setVertexAttribs(Object &object, int attribIndex, int n, int d, const float* data)
 		{
-			// object.vertexAttributes.clear();
-			std::cout << "setting vertex attributes with dimension" << d << std::endl;
+
 			if(object.vertexAttributes.size() != n) //INcase size doesn't match, it erases all vertex attributes
 			{
 				object.vertexAttributes = std::vector<Attribs>(n);
@@ -191,7 +190,7 @@ namespace COL781 {
 				{
 					vals.push_back(data[i*d + j]);
 				}
-				object.vertexAttributes[i] = Attribs(); 
+
 				if( d == 4)
 				{
 					glm::vec4 vals_vec4(vals[0], vals[1], vals[2], vals[3]);
@@ -257,7 +256,7 @@ namespace COL781 {
 
 		float areaTriangle(glm::vec2 v0, glm::vec2 v1, glm::vec2 v2)
 		{
-			return (v1.x - v0.x) * (v2.y - v0.y) - (v2.x - v0.x) * (v1.y - v0.y);
+			return 0.5*((v1.x - v0.x) * (v2.y - v0.y) - (v2.x - v0.x) * (v1.y - v0.y));
 		}
 
 		void Rasterizer::drawTriangle(triangle t, int supersampling)
@@ -295,7 +294,7 @@ namespace COL781 {
 						float a = areaTriangle(glm::vec2(x,y), t.v[1], t.v[2])/totalArea;
 						float b = areaTriangle(t.v[0], glm::vec2(x,y), t.v[2])/totalArea;
 						float c = areaTriangle(t.v[0], t.v[1], glm::vec2(x,y))/totalArea;
-						std::cout << t.color[0][0] << " " << t.color[0][1] << " " << t.color[0][2] << " " << t.color[0][3] << std::endl;
+						// std::cout << t.color[0][0] << " " << t.color[0][1] << " " << t.color[0][2] << " " << t.color[0][3] << std::endl;
 						glm::vec4 color = a*t.color[0] + b*t.color[1] + c*t.color[2];
 						//calculate the gradient over here using the formula of area with this as the dividing point.
 						Uint32 colorUint = SDL_MapRGBA(framebuffer->format, (Uint8)(color.r * 255), (Uint8)(color.g * 255), (Uint8)(color.b * 255), (Uint8)(color.a * 255));
@@ -332,8 +331,13 @@ namespace COL781 {
 					//updating the positions from 0-1 to screen space. and updating the vertex colors.
 					t.v[tvert].x = (t.v[tvert].x + 1)* frameWidth/2; t.v[tvert].y = (-t.v[tvert].y + 1)* frameHeight/2; //from 0-1 to screen space transform that is required. maybe should do this in some vector way?
 					// t.color[tvert] = glm::vec4(1,0,1,1); // For debugging colors. 
+					if (object.vertexAttributes[object.indices[i][tvert]].get<glm::vec4>(1) != glm::vec4(0,0,0,0)){	// smth wrong here!!!
+						t.color[tvert]=object.vertexAttributes[object.indices[i][tvert]].get<glm::vec4>(1);
+						}
+					else{
 					t.color[tvert] = currentShader->fs(currentShader->uniforms, screenVertAttributes[object.indices[i][tvert]]);
-				} 				
+					} 		
+				}		
 
 				drawTriangle(t,1); //draw the triangle.
 			}	

@@ -68,7 +68,7 @@ namespace COL781 {
 			}
 
 			float area() const 
-			{ return (v[1].x - v[0].x) * (v[2].y - v[0].y) - (v[2].x - v[0].x) * (v[1].y - v[0].y); } //area of the triangle
+			{ return 0.5*(v[1].x - v[0].x) * (v[2].y - v[0].y) - (v[2].x - v[0].x) * (v[1].y - v[0].y); } //area of the triangle
 
 
 			bool inside(glm::vec2 p) const 
