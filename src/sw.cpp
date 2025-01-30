@@ -244,7 +244,7 @@ namespace COL781 {
 		void Rasterizer::deleteShaderProgram(ShaderProgram &program)
 		{
 			// delete currentShader;
-			// currentShader = NULL;
+			currentShader = NULL;
 		}
 		Uint32 Rasterizer::colorLerp(Uint32 c1, Uint32 c2, float t) // t must be between 0 and 1. 
 		{
@@ -252,7 +252,6 @@ namespace COL781 {
 		    Uint8 r2, g2, b2, a2;
 		    SDL_GetRGBA(c1, framebuffer->format, &r1, &g1, &b1, &a1);
 		    SDL_GetRGBA(c2, framebuffer->format, &r2, &g2, &b2, &a2);
-
 		    return SDL_MapRGBA(framebuffer->format, r1 + (r2 - r1) * t, g1 + (g2 - g1) * t, b1 + (b2 - b1) * t, a1 + (a2 - a1) * t);
 		}
 
@@ -296,6 +295,7 @@ namespace COL781 {
 						float a = areaTriangle(glm::vec2(x,y), t.v[1], t.v[2])/totalArea;
 						float b = areaTriangle(t.v[0], glm::vec2(x,y), t.v[2])/totalArea;
 						float c = areaTriangle(t.v[0], t.v[1], glm::vec2(x,y))/totalArea;
+						std::cout << t.color[0][0] << " " << t.color[0][1] << " " << t.color[0][2] << " " << t.color[0][3] << std::endl;
 						glm::vec4 color = a*t.color[0] + b*t.color[1] + c*t.color[2];
 						//calculate the gradient over here using the formula of area with this as the dividing point.
 						Uint32 colorUint = SDL_MapRGBA(framebuffer->format, (Uint8)(color.r * 255), (Uint8)(color.g * 255), (Uint8)(color.b * 255), (Uint8)(color.a * 255));
@@ -331,8 +331,8 @@ namespace COL781 {
 				{
 					//updating the positions from 0-1 to screen space. and updating the vertex colors.
 					t.v[tvert].x = (t.v[tvert].x + 1)* frameWidth/2; t.v[tvert].y = (-t.v[tvert].y + 1)* frameHeight/2; //from 0-1 to screen space transform that is required. maybe should do this in some vector way?
-					t.color[tvert] = glm::vec4(1,0,1,1);
-					// currentShader->fs(currentShader->uniforms, screenVertAttributes[object.indices[i][tvert]]);
+					// t.color[tvert] = glm::vec4(1,0,1,1); // For debugging colors. 
+					t.color[tvert] = currentShader->fs(currentShader->uniforms, screenVertAttributes[object.indices[i][tvert]]);
 				} 				
 
 				drawTriangle(t,1); //draw the triangle.
