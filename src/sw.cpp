@@ -53,7 +53,7 @@ namespace COL781 {
 
 		FragmentShader Rasterizer::fsIdentity() {
 			return [](const Uniforms &uniforms, const Attribs &in) {
-				glm::vec4 color = in.get<glm::vec4>(0);
+				glm::vec4 color = in.get<glm::vec4>(1);
 				return color;
 			};
 		}
@@ -330,13 +330,9 @@ namespace COL781 {
 				{
 					//updating the positions from 0-1 to screen space. and updating the vertex colors.
 					t.v[tvert].x = (t.v[tvert].x + 1)* frameWidth/2; t.v[tvert].y = (-t.v[tvert].y + 1)* frameHeight/2; //from 0-1 to screen space transform that is required. maybe should do this in some vector way?
-					// t.color[tvert] = glm::vec4(1,0,1,1); // For debugging colors. 
-					if (object.vertexAttributes[object.indices[i][tvert]].get<glm::vec4>(1) != glm::vec4(0,0,0,0)){	// smth wrong here!!!
-						t.color[tvert]=object.vertexAttributes[object.indices[i][tvert]].get<glm::vec4>(1);
-						}
-					else{
+
 					t.color[tvert] = currentShader->fs(currentShader->uniforms, screenVertAttributes[object.indices[i][tvert]]);
-					} 		
+						
 				}		
 
 				drawTriangle(t,1); //draw the triangle.

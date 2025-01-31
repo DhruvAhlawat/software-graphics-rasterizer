@@ -11,7 +11,6 @@ int main() {
     R::ShaderProgram program = r.createShaderProgram(
         r.vsColor(),
         r.fsIdentity()
-        // r.fsConstant()
     );
 
     float vertices[] = {
@@ -40,7 +39,6 @@ int main() {
     while (!r.shouldQuit()) {
         r.clear(vec4(1.0, 1.0, 1.0, 1.0));
         r.useShaderProgram(program);
-        // r.setUniform<vec4>(program, "color", vec4(1.0, 0.4, 0.4, 1.0));
 		r.drawObject(shape);
         r.show();
     }

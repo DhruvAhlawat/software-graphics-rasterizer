@@ -25,11 +25,10 @@ int main() {
 	R::Object tickmark = r.createObject();
 	r.setVertexAttribs(tickmark, 0, 4, 4, vertices);
 	r.setTriangleIndices(tickmark, 2, triangles);
-    while (!r.shouldQuit()) 
-    {
+    while (!r.shouldQuit()) {
         r.clear(vec4(1.0, 1.0, 1.0, 1.0));
         r.useShaderProgram(program);
-        r.setUniform<vec4>(program, "color", vec4(0.0, 1.0, 0.0, 1.0));
+        r.setUniform<vec4>(program, "color", vec4(0.0, 0.6, 0.0, 1.0));
 		r.drawObject(tickmark);
         r.show();
     }
