@@ -38,8 +38,8 @@ namespace COL781 {
 		VertexShader Rasterizer::vsColor() {
 			return [](const Uniforms &uniforms, const Attribs &in, Attribs &out) {
 				glm::vec4 vertex = in.get<glm::vec4>(0);
-				// glm::vec4 color = in.get<glm::vec4>(1);
-				// out.set<glm::vec4>(1, color);
+				glm::vec4 color = in.get<glm::vec4>(1);
+				out.set<glm::vec4>(1, color);
 				return vertex;
 			};
 		}
@@ -59,6 +59,10 @@ namespace COL781 {
 		}
 
 		// Implementation of Attribs and Uniforms classes
+
+		VertexShader Rasterizer::vsColorTransform() {
+
+		}
 
 		void checkDimension(int index, int actual, int requested) {
 			if (actual != requested) {
@@ -297,14 +301,16 @@ namespace COL781 {
 						float a = areaTriangle(glm::vec2(x,y), t.v[1], t.v[2])/totalArea;
 						float b = areaTriangle(t.v[0], glm::vec2(x,y), t.v[2])/totalArea;
 						float c = areaTriangle(t.v[0], t.v[1], glm::vec2(x,y))/totalArea;
-
-						float z = a*t.v[0].z + b*t.v[1].z + c*t.v[2].z;
-						if (zbuffer[x + frameWidth*y] < z)
-						{
-							continue;
-						}
-						else{
-							zbuffer[x + frameWidth*y] = z;
+							
+						if (depthTest){
+							float z = a*t.v[0].z + b*t.v[1].z + c*t.v[2].z;
+							if (zbuffer[x + frameWidth*y] < z)
+							{
+								continue;
+							}
+							else{
+								zbuffer[x + frameWidth*y] = z;
+							}
 						}
 						glm::vec4 color = a*t.color[0] + b*t.color[1] + c*t.color[2];
 						//calculate the gradient over here using the formula of area with this as the dividing point.
@@ -383,7 +389,7 @@ namespace COL781 {
 			};
 		}
 		void Rasterizer::enableDepthTest(){
-			//do nothing for now.
+			depthTest=true;
 		}
 	}
 }

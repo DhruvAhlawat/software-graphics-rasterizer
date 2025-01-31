@@ -96,6 +96,7 @@ namespace COL781 {
 			//additional attributes.
 			int frameWidth, frameHeight, spp;
 			std::vector<float> zbuffer; //need to change this later
+			bool depthTest = false;
 			SDL_Surface *windowSurface;
 			SDL_Surface *framebuffer;
 			ShaderProgram *currentShader = nullptr;
