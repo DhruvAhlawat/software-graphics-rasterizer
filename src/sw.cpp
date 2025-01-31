@@ -70,11 +70,6 @@ namespace COL781 {
 				glm::vec4 transformed_vertex = transform * vertex; 
 				//now we divide by the last w coordinate to get the screen positions that we need. 
 				transformed_vertex /= transformed_vertex.w;
-				for(int i = 0; i < 4; i++)
-				{
-					std::cout << transformed_vertex[i] << " ";
-				}
-				std:: cout << "\n";
 				return transformed_vertex;
 			};
 		}
@@ -152,7 +147,7 @@ namespace COL781 {
 
 			auto it = values.find(name);
 			if (it != values.end()) {
-				delete it->second; //deleeting the object contained in this location.
+				delete static_cast<T*>(it->second); // deleting the object contained in this location.
 			}
 			values[name] = (void*)(new T(value));
 		}
@@ -322,6 +317,7 @@ namespace COL781 {
 						{
 							continue;
 						}
+
 						zbuffer[x + frameWidth*y] = z;
 						glm::vec4 color = a*t.color[0]*t.v[0].z + b*t.color[1]*t.v[1].z + c*t.color[2]*t.v[2].z;
 						color = color/z;
