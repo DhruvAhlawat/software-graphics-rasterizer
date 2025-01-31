@@ -60,8 +60,23 @@ namespace COL781 {
 
 		// Implementation of Attribs and Uniforms classes
 
-		VertexShader Rasterizer::vsColorTransform() {
-
+		VertexShader Rasterizer::vsColorTransform() 
+		{
+			return [](const Uniforms &uniforms, const Attribs &in, Attribs &out) {
+				glm::vec4 vertex = in.get<glm::vec4>(0);
+				glm::mat4 transform = uniforms.get<glm::mat4>("transform");
+				glm::vec4 color = in.get<glm::vec4>(1);
+				out.set<glm::vec4>(1, color);
+				glm::vec4 transformed_vertex = transform * vertex; 
+				//now we divide by the last w coordinate to get the screen positions that we need. 
+				transformed_vertex /= transformed_vertex.w;
+				for(int i = 0; i < 4; i++)
+				{
+					std::cout << transformed_vertex[i] << " ";
+				}
+				std:: cout << "\n";
+				return transformed_vertex;
+			};
 		}
 
 		void checkDimension(int index, int actual, int requested) {
@@ -237,6 +252,7 @@ namespace COL781 {
     		for (int x = 0; x < frameWidth; x++) {
                 for (int y = 0; y < frameHeight; y++) {
                     pixels[x + frameWidth*y] = colorUint;
+					zbuffer[x + frameWidth*y] = 1.0f;
                 }
             }
 		}
@@ -301,18 +317,14 @@ namespace COL781 {
 						float a = areaTriangle(glm::vec2(x,y), t.v[1], t.v[2])/totalArea;
 						float b = areaTriangle(t.v[0], glm::vec2(x,y), t.v[2])/totalArea;
 						float c = areaTriangle(t.v[0], t.v[1], glm::vec2(x,y))/totalArea;
-							
-						if (depthTest){
-							float z = a*t.v[0].z + b*t.v[1].z + c*t.v[2].z;
-							if (zbuffer[x + frameWidth*y] < z)
-							{
-								continue;
-							}
-							else{
-								zbuffer[x + frameWidth*y] = z;
-							}
+						float z = a*t.v[0].z + b*t.v[1].z + c*t.v[2].z;
+						if (depthTest && zbuffer[x + frameWidth*y] < z)
+						{
+							continue;
 						}
-						glm::vec4 color = a*t.color[0] + b*t.color[1] + c*t.color[2];
+						zbuffer[x + frameWidth*y] = z;
+						glm::vec4 color = a*t.color[0]*t.v[0].z + b*t.color[1]*t.v[1].z + c*t.color[2]*t.v[2].z;
+						color = color/z;
 						//calculate the gradient over here using the formula of area with this as the dividing point.
 						Uint32 colorUint = SDL_MapRGBA(framebuffer->format, (Uint8)(color.r * 255), (Uint8)(color.g * 255), (Uint8)(color.b * 255), (Uint8)(color.a * 255));
 		                pixels[x + frameWidth*y] = colorUint; // colorLerp(pixels[x + frameWidth*y], color,  (float)count/(float)total);
@@ -334,7 +346,6 @@ namespace COL781 {
 				screenVertAttributes.push_back(object.vertexAttributes[i]);
 				glm::vec4 screenPos = currentShader->vs(currentShader->uniforms, object.vertexAttributes[i], screenVertAttributes[i]);
 				screenVertAttributes[i].set(0, screenPos);
-				// printf("yoyo");
 			}
 			//color determined from the fragment shader
 			//now we go over all the triangles and draw the object.
@@ -342,6 +353,7 @@ namespace COL781 {
 			for(int i = 0; i < object.indices.size(); i++)
 			{
 				//drawing triangles one by one without considering clipping for now.
+				// glm::vec4 ogloc = screenVertAtrribu
 				triangle t(glm::vec3(screenVertAttributes[object.indices[i].x].get<glm::vec4>(0)), glm::vec3(screenVertAttributes[object.indices[i].y].get<glm::vec4>(0)), glm::vec3(screenVertAttributes[object.indices[i].z].get<glm::vec4>(0)));
 				for(int tvert = 0; tvert < 3; tvert++)
 				{
