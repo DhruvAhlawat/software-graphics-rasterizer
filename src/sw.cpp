@@ -158,6 +158,9 @@ namespace COL781 {
 			framebuffer = SDL_CreateRGBSurface(0, width, height, 32, 0, 0, 0, 0);
 			Rasterizer::quit = false;
 			this->frameWidth = width; this->frameHeight = height; this->spp = spp;
+
+			zbuffer = std::vector<float>(frameWidth*frameHeight, 1.0f);
+
 			return true; //successfully created the window and framebuffer.
 		}
 
@@ -294,7 +297,15 @@ namespace COL781 {
 						float a = areaTriangle(glm::vec2(x,y), t.v[1], t.v[2])/totalArea;
 						float b = areaTriangle(t.v[0], glm::vec2(x,y), t.v[2])/totalArea;
 						float c = areaTriangle(t.v[0], t.v[1], glm::vec2(x,y))/totalArea;
-						// std::cout << t.color[0][0] << " " << t.color[0][1] << " " << t.color[0][2] << " " << t.color[0][3] << std::endl;
+
+						float z = a*t.v[0].z + b*t.v[1].z + c*t.v[2].z;
+						if (zbuffer[x + frameWidth*y] < z)
+						{
+							continue;
+						}
+						else{
+							zbuffer[x + frameWidth*y] = z;
+						}
 						glm::vec4 color = a*t.color[0] + b*t.color[1] + c*t.color[2];
 						//calculate the gradient over here using the formula of area with this as the dividing point.
 						Uint32 colorUint = SDL_MapRGBA(framebuffer->format, (Uint8)(color.r * 255), (Uint8)(color.g * 255), (Uint8)(color.b * 255), (Uint8)(color.a * 255));
@@ -325,7 +336,7 @@ namespace COL781 {
 			for(int i = 0; i < object.indices.size(); i++)
 			{
 				//drawing triangles one by one without considering clipping for now.
-				triangle t(glm::vec2(screenVertAttributes[object.indices[i].x].get<glm::vec4>(0)), glm::vec2(screenVertAttributes[object.indices[i].y].get<glm::vec4>(0)), glm::vec2(screenVertAttributes[object.indices[i].z].get<glm::vec4>(0)));
+				triangle t(glm::vec3(screenVertAttributes[object.indices[i].x].get<glm::vec4>(0)), glm::vec3(screenVertAttributes[object.indices[i].y].get<glm::vec4>(0)), glm::vec3(screenVertAttributes[object.indices[i].z].get<glm::vec4>(0)));
 				for(int tvert = 0; tvert < 3; tvert++)
 				{
 					//updating the positions from 0-1 to screen space. and updating the vertex colors.
@@ -342,6 +353,11 @@ namespace COL781 {
 		template <> void Rasterizer::setUniform(ShaderProgram &program, const std::string &name, glm::vec4 value)
 		{
 			program.uniforms.set<glm::vec4>(name, value);
+		}
+
+		template <> void Rasterizer::setUniform(ShaderProgram &program, const std::string &name, glm::mat4 value)
+		{
+			program.uniforms.set<glm::mat4>(name, value);
 		}
 
 		bool Rasterizer::shouldQuit()
@@ -365,6 +381,9 @@ namespace COL781 {
 			if (handleEvents(Rasterizer::quit)){
 				Rasterizer::quit = true;
 			};
+		}
+		void Rasterizer::enableDepthTest(){
+			//do nothing for now.
 		}
 	}
 }

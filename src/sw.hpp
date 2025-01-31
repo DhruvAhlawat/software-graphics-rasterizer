@@ -55,10 +55,10 @@ namespace COL781 {
 		class triangle
 		{
 			public:
-			glm::vec2 v[3]; //vertices of the triangle
+			glm::vec3 v[3]; //vertices of the triangle
 			glm::vec4 color[3]; //colors of the vertices
-			triangle(glm::vec2 v0,glm::vec2 v1,glm::vec2 v2) {v[0] = v0; v[1] = v1; v[2] = v2;}
-			triangle(glm::vec2 verts[3], glm::vec4 col[3]) 
+			triangle(glm::vec3 v0,glm::vec3 v1,glm::vec3 v2) {v[0] = v0; v[1] = v1; v[2] = v2;}
+			triangle(glm::vec3 verts[3], glm::vec4 col[3]) 
 			{
 				for(int i = 0; i < 3; i++)
 				{
@@ -76,6 +76,7 @@ namespace COL781 {
 				float a = (v[1].x - v[0].x) * (p.y - v[0].y) - (p.x - v[0].x) * (v[1].y - v[0].y);
 				float b = (v[2].x - v[1].x) * (p.y - v[1].y) - (p.x - v[1].x) * (v[2].y - v[1].y);
 				float c = (v[0].x - v[2].x) * (p.y - v[2].y) - (p.x - v[2].x) * (v[0].y - v[2].y);
+				
 				if (a >= 0 && b >= 0 && c >= 0) return 1;
 				if (a <= 0 && b <= 0 && c <= 0) return 1;
 				return 0;
@@ -92,9 +93,9 @@ namespace COL781 {
 			SDL_Window *window;
 			bool quit;
 			// Create window and rasterizer attributes here
-
 			//additional attributes.
 			int frameWidth, frameHeight, spp;
+			std::vector<float> zbuffer; //need to change this later
 			SDL_Surface *windowSurface;
 			SDL_Surface *framebuffer;
 			ShaderProgram *currentShader = nullptr;
