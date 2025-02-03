@@ -308,19 +308,23 @@ namespace COL781 {
 		            }
 		            if (count > 0)
 		            {	
+
 						//Works in 2d. the color gradient that I am providing right now. 
 						float a = areaTriangle(glm::vec2(x,y), t.v[1], t.v[2])/totalArea;
 						float b = areaTriangle(t.v[0], glm::vec2(x,y), t.v[2])/totalArea;
 						float c = areaTriangle(t.v[0], t.v[1], glm::vec2(x,y))/totalArea;
-						float z = a*t.v[0].z + b*t.v[1].z + c*t.v[2].z;
+
+						float iz = a / t.v[0].z + b / t.v[1].z + c / t.v[2].z;	// interpolated 1/z
+						float z = 1.0f / iz; //interpolated z
+
 						if (depthTest && zbuffer[x + frameWidth*y] < z)
 						{
 							continue;
 						}
 
 						zbuffer[x + frameWidth*y] = z;
-						glm::vec4 color = a*t.color[0]*t.v[0].z + b*t.color[1]*t.v[1].z + c*t.color[2]*t.v[2].z;
-						color = color/z;
+						glm::vec4 color = (a*t.color[0] /t.v[0].z + b*t.color[1] /t.v[1].z + c*t.color[2] /t.v[2].z) /iz;
+
 						//calculate the gradient over here using the formula of area with this as the dividing point.
 						Uint32 colorUint = SDL_MapRGBA(framebuffer->format, (Uint8)(color.r * 255), (Uint8)(color.g * 255), (Uint8)(color.b * 255), (Uint8)(color.a * 255));
 		                pixels[x + frameWidth*y] = colorUint; // colorLerp(pixels[x + frameWidth*y], color,  (float)count/(float)total);
