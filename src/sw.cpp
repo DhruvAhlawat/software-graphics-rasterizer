@@ -18,12 +18,25 @@ namespace COL781 {
 		template <> void Attribs::set(int index, glm::vec3 value);
 		template <> void Attribs::set(int index, glm::vec4 value);
 
+		glm::vec4 depthpos_to_screenpos(glm::vec4 in)
+		{
+			glm::vec4 out = in;
+			out.x = in.x/in.w;
+			out.y = in.y/in.w;
+			// out.z = in.z/in.w;
+			out.z = -in.w;
+			// out.w = in.w; //stores the -z coordinate now for further processing later.
+			return out;
+		}
+
+
 		// Built-in shaders
+
 
 		VertexShader Rasterizer::vsIdentity() {
 			return [](const Uniforms &uniforms, const Attribs &in, Attribs &out) {
 				glm::vec4 vertex = in.get<glm::vec4>(0);
-				return vertex;
+				return depthpos_to_screenpos(vertex);
 			};
 		}
 
@@ -31,7 +44,10 @@ namespace COL781 {
 			return [](const Uniforms &uniforms, const Attribs &in, Attribs &out) {
 				glm::vec4 vertex = in.get<glm::vec4>(0);
 				glm::mat4 transform = uniforms.get<glm::mat4>("transform");
-				return transform * vertex;
+				vertex = transform * vertex;
+				vertex = depthpos_to_screenpos(vertex);
+				return vertex;
+
 			};
 		}
 
@@ -40,6 +56,7 @@ namespace COL781 {
 				glm::vec4 vertex = in.get<glm::vec4>(0);
 				glm::vec4 color = in.get<glm::vec4>(1);
 				out.set<glm::vec4>(1, color);
+				vertex = depthpos_to_screenpos(vertex);
 				return vertex;
 			};
 		}
@@ -58,7 +75,16 @@ namespace COL781 {
 			};
 		}
 
+		
+		FragmentShader Rasterizer::fsDiffuseLighting()
+		{
+
+		}
+
+
 		// Implementation of Attribs and Uniforms classes
+
+		
 
 		VertexShader Rasterizer::vsColorTransform() 
 		{
@@ -69,9 +95,7 @@ namespace COL781 {
 				out.set<glm::vec4>(1, color);
 				glm::vec4 transformed_vertex = transform * vertex; 
 				//now we divide by the last w coordinate to get the screen positions that we need. 
-				transformed_vertex.x /= transformed_vertex.w;
-				transformed_vertex.y /= transformed_vertex.w;
-				transformed_vertex.z = -transformed_vertex.w;
+				transformed_vertex = depthpos_to_screenpos(transformed_vertex);
 				return transformed_vertex;
 			};
 		}
@@ -315,7 +339,6 @@ namespace COL781 {
 						float a = areaTriangle(glm::vec2(x,y), t.v[1], t.v[2])/totalArea;
 						float b = areaTriangle(t.v[0], glm::vec2(x,y), t.v[2])/totalArea;
 						float c = areaTriangle(t.v[0], t.v[1], glm::vec2(x,y))/totalArea;
-
 						float z = a * t.v[0].z + b * t.v[1].z + c * t.v[2].z;
 						if (depthTest && zbuffer[x + frameWidth*y] < z)
 						{
@@ -326,6 +349,7 @@ namespace COL781 {
 							t.v[0].z = 1; t.v[1].z = 1; t.v[2].z = 1;
 							z = 1;
 						}
+
 						//else we are using depth information.
 						float iz = a / t.v[0].z + b / t.v[1].z + c / t.v[2].z;	// interpolated 1/z
 
@@ -336,6 +360,7 @@ namespace COL781 {
 						//calculate the gradient over here using the formula of area with this as the dividing point.
 						Uint32 colorUint = SDL_MapRGBA(framebuffer->format, (Uint8)(color.r * 255), (Uint8)(color.g * 255), (Uint8)(color.b * 255), (Uint8)(color.a * 255));
 		                pixels[x + frameWidth*y] = colorUint; // colorLerp(pixels[x + frameWidth*y], color,  (float)count/(float)total);
+		                // pixels[x + frameWidth*y] = colorLerp(pixels[x + frameWidth*y], colorUint,  (float)count/(float)total);
 		            }
 		        }
 		    }
@@ -372,7 +397,7 @@ namespace COL781 {
 						
 				}		
 
-				drawTriangle(t,1); //draw the triangle.
+				drawTriangle(t,4); //draw the triangle.
 			}	
 		}
 	
