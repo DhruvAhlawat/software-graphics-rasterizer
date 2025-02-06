@@ -1,6 +1,7 @@
 #include "../src/a1.hpp"
 #include <glm/gtc/matrix_transform.hpp>
 #include <ctime>
+#include<iostream>
 
 namespace R = COL781::Hardware;
 using namespace glm;
@@ -38,7 +39,18 @@ int main() {
     while (!r.shouldQuit()) {
         time_t now = time(0);
         tm *ltm = localtime(&now);
-
+        ltm->tm_gmtoff = 19800;
+        ltm->tm_min = (ltm->tm_min + 30);
+        if(ltm->tm_min >= 60)
+        {
+            ltm->tm_hour += 1;
+            ltm->tm_min -= 60;
+        }
+        ltm->tm_hour += 5; 
+        if(ltm->tm_hour >= 24)
+        {
+            ltm->tm_hour -= 24;
+        }
         float hourAngle = -radians(30.0f * (ltm->tm_hour % 12) + (ltm->tm_min / 2.0f));
         float minuteAngle = -radians(6.0f * ltm->tm_min);
         float secondAngle = -radians(6.0f * ltm->tm_sec);
