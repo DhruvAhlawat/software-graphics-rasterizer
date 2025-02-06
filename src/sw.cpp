@@ -61,6 +61,8 @@ namespace COL781 {
 			};
 		}
 
+	
+
 		FragmentShader Rasterizer::fsConstant() {
 			return [](const Uniforms &uniforms, const Attribs &in) {
 				glm::vec4 color = uniforms.get<glm::vec4>("color");
@@ -78,13 +80,36 @@ namespace COL781 {
 		
 		FragmentShader Rasterizer::fsDiffuseLighting()
 		{
-
+			return [](const Uniforms &uniforms, const Attribs &in) 
+			{
+				glm::vec4 color = in.get<glm::vec4>(1);
+				return color;
+			};
 		}
-
 
 		// Implementation of Attribs and Uniforms classes
 
-		
+		VertexShader Rasterizer::vsNormalTransform()
+		{
+			return [](const Uniforms &uniforms, const Attribs &in, Attribs &out) 
+			{
+				glm::mat4 wsTransform = uniforms.get<glm::mat4>("wsTransform");
+				glm::mat4 transform = uniforms.get<glm::mat4>("transform");
+
+				glm::vec4 vertex = in.get<glm::vec4>(0);
+                glm::vec4 screenVertex = depthpos_to_screenpos(transform * vertex); //screen position for the vertex
+				glm::vec4 worldVertex = wsTransform * vertex; //world position for the vertex.
+
+				glm::vec3 normal = in.get<glm::vec3>(1);
+				normal = glm::mat3(glm::transpose(glm::inverse(wsTransform))) * normal; 
+
+				out.set<glm::vec4>(0, screenVertex);
+				out.set<glm::vec3>(1, normal);
+				out.set<glm::vec4>(2, worldVertex);
+
+				return screenVertex;
+			};
+		}
 
 		VertexShader Rasterizer::vsColorTransform() 
 		{
@@ -102,7 +127,6 @@ namespace COL781 {
 
 		void checkDimension(int index, int actual, int requested) {
 			if (actual != requested) {
-				// std::cout << "index "
 				std::cout << "Warning: attribute " << index << " has dimension " << actual << " but accessed as dimension " << requested << std::endl;
 			}
 		}
@@ -209,7 +233,6 @@ namespace COL781 {
 			ShaderProgram program;
 			program.vs = vs;
 			program.fs = fs;
-			// What about Uniforms? created by default and set later :) 
 			return program; 
 		}
 
@@ -280,7 +303,6 @@ namespace COL781 {
 
 		void Rasterizer::useShaderProgram(const ShaderProgram &program)
 		{
-			// *currentShader = program;
 			currentShader = (ShaderProgram*)&program;
 		}
 		
@@ -355,8 +377,9 @@ namespace COL781 {
 
 						zbuffer[x + frameWidth*y] = z;
 						
-						glm::vec4 color = (a*t.color[0] /t.v[0].z + b*t.color[1] /t.v[1].z + c*t.color[2] /t.v[2].z)/iz;
+						Attribs curattrib;
 						
+						glm::vec4 color = (a*t.color[0] /t.v[0].z + b*t.color[1] /t.v[1].z + c*t.color[2] /t.v[2].z)/iz;
 						//calculate the gradient over here using the formula of area with this as the dividing point.
 						Uint32 colorUint = SDL_MapRGBA(framebuffer->format, (Uint8)(color.r * 255), (Uint8)(color.g * 255), (Uint8)(color.b * 255), (Uint8)(color.a * 255));
 		                pixels[x + frameWidth*y] = colorUint; // colorLerp(pixels[x + frameWidth*y], color,  (float)count/(float)total);
@@ -378,7 +401,7 @@ namespace COL781 {
 			{
 				screenVertAttributes.push_back(object.vertexAttributes[i]);
 				glm::vec4 screenPos = currentShader->vs(currentShader->uniforms, object.vertexAttributes[i], screenVertAttributes[i]);
-				screenVertAttributes[i].set(0, screenPos);
+				screenVertAttributes[i].set(0, screenPos); //not really necessary actually.
 			}
 			//color determined from the fragment shader
 			//now we go over all the triangles and draw the object.
@@ -386,18 +409,14 @@ namespace COL781 {
 			for(int i = 0; i < object.indices.size(); i++)
 			{
 				//drawing triangles one by one without considering clipping for now.
-				// glm::vec4 ogloc = screenVertAtrribu
-				triangle t(glm::vec3(screenVertAttributes[object.indices[i].x].get<glm::vec4>(0)), glm::vec3(screenVertAttributes[object.indices[i].y].get<glm::vec4>(0)), glm::vec3(screenVertAttributes[object.indices[i].z].get<glm::vec4>(0)));
+				triangle t(screenVertAttributes[object.indices[i].x], screenVertAttributes[object.indices[i].y], screenVertAttributes[object.indices[i].z]);
 				for(int tvert = 0; tvert < 3; tvert++)
 				{
-					//updating the positions from 0-1 to screen space. and updating the vertex colors.
-					t.v[tvert].x = (t.v[tvert].x + 1)* frameWidth/2; t.v[tvert].y = (-t.v[tvert].y + 1)* frameHeight/2; //from 0-1 to screen space transform that is required. maybe should do this in some vector way?
-
+					t.v[tvert].x = (t.v[tvert].x + 1)*frameWidth/2; 
+					t.v[tvert].y = (-t.v[tvert].y + 1)* frameHeight/2; //from 0-1 to screen space transform that is required. maybe should do this in some vector way?
 					t.color[tvert] = currentShader->fs(currentShader->uniforms, screenVertAttributes[object.indices[i][tvert]]);
-						
 				}		
-
-				drawTriangle(t,4); //draw the triangle.
+				drawTriangle(t,1); //draw the triangle.
 			}	
 		}
 	
