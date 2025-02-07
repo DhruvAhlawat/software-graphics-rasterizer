@@ -53,3 +53,67 @@ if __name__ == "__main__":
         output_path = sys.argv[2];
     process_obj(input_path, output_path)
     print(f"Processed file saved as {output_path}")
+
+# import sys
+
+# def process_obj(input_file, output_file):
+#     with open(input_file, 'r') as f:
+#         lines = f.readlines()
+    
+#     new_lines = []
+#     vertices = []
+#     normals = []
+#     objects = []
+#     current_object = []
+#     face_lines = []
+    
+#     for line in lines:
+#         if line.startswith('o '):
+#             if current_object:
+#                 objects.append((current_object, face_lines))
+#                 current_object = []
+#                 face_lines = []
+#             new_lines.append(line.strip())
+#         elif line.startswith('v '):
+#             vertices.append(line.strip())
+#         elif line.startswith('vn '):
+#             normals.append(line.strip())
+#         elif line.startswith('f '):
+#             face_lines.append(line.strip())
+    
+#     if current_object:
+#         objects.append((current_object, face_lines))
+    
+#     new_vertex_list = []
+#     new_normal_list = []
+#     new_faces = []
+#     vertex_index = 1
+    
+#     for obj, faces in objects:
+#         new_lines.append(f"o {obj}")
+#         for face in faces:
+#             parts = face.split()
+#             face_indices = []
+#             for part in parts[1:]:
+#                 v_idx, _, vn_idx = part.split('//')
+#                 new_v_idx = vertex_index
+#                 new_vertex_list.append(vertices[int(v_idx) - 1])
+#                 new_normal_list.append(normals[int(vn_idx) - 1])
+#                 face_indices.append(str(new_v_idx))
+#                 vertex_index += 1
+#             new_faces.append("f " + " ".join(face_indices))
+    
+#     new_lines.extend(new_vertex_list)
+#     new_lines.extend(new_normal_list)
+#     new_lines.extend(new_faces)
+    
+#     with open(output_file, 'w') as f:
+#         f.write('\n'.join(new_lines) + '\n')
+
+# if __name__ == "__main__":
+#     if len(sys.argv) != 3:
+#         print("Usage: python script.py input.obj output.obj")
+#         sys.exit(1)
+    
+#     process_obj(sys.argv[1], sys.argv[2])
+
