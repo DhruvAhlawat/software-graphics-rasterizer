@@ -8,7 +8,7 @@ using namespace glm;
 int main() {
 	R::Rasterizer r;
 	int width = 640, height = 480;
-    if (!r.initialize("Example 6", width, height))
+    if (!r.initialize("Monkey-sun earth moon", width, height))
         return EXIT_FAILURE;
 
     R::ShaderProgram program = r.createShaderProgram(
@@ -7379,17 +7379,22 @@ int triangles_monk[] = {
 	r.setTriangleIndices(ball, 80, triangles);
 
     r.enableDepthTest();
-    vec3 objectColor(1.0f, 0.4f, 0.71f);
-    vec3 ballColor(0.1f, 0.68f, 0.9f);
-
-    vec3 ambientColor(0.2f, 0.1f, 0.062f);
+    vec3 objectColor(1.0f, 0.6f, 0.2f);
+    vec3 ballColor(0.1f, 0.74f, 0.9f);
+    vec3 moonColor(0.9f, 0.9f, 0.9f);
+    vec3 ambientColor(0.2f, 0.1f, 0.1f);
     vec3 specularColor(0.8f, 0.8f, 0.8f);
 
     // The transformation matrix.
     mat4 model = mat4(1.0f);
+    mat4 moonOffset = translate(mat4(1.0f), vec3(1.0f, 0.0f, 0.0f));
+    mat4 moonScale = scale(mat4(1.0f), vec3(0.25, 0.25, 0.25));
+
+    mat4 moonRotation = mat4(1.0f);
     mat4 rotation = mat4(1.0f);
-	mat4 view = translate(mat4(1.0f), vec3(0.0f, 0.0f, -4.0f));
-    view = rotate(view, radians(30.0f), vec3(1.0f, 0.0f, 0.0f));
+	mat4 view = translate(mat4(1.0f), vec3(0.0f, -0.0f, -5.0f));
+    mat4 monkescale = scale(mat4(1.0f), vec3(1.3f, 1.3f, 1.3f));
+    view = rotate(view, radians(60.0f), vec3(1.0f, 0.0f, 0.0f));
     mat4 projection = perspective(radians(60.0f), (float)width/(float)height, 0.1f, 100.0f);
 
     // Lighting parameters.
@@ -7406,8 +7411,8 @@ int triangles_monk[] = {
         model = rotate(mat4(1.0f), radians(0.0f), vec3(0.0f,1.0f,1.0f));
         rotation = rotate(mat4(1.0f), radians(-60.0f), glm::vec3(1.0f,0.7f,0.0f));
         // lightDir = vec3(cos(time), 0.5f, sin(time));
-        r.setUniform(program, "transform", projection * view * model *rotation);
-        r.setUniform(program, "wsTransform", model);
+        r.setUniform(program, "transform", projection * view * model * rotation * monkescale);
+        r.setUniform(program, "wsTransform", model * monkescale);
         r.setUniform(program, "lightColor", lightColor);
         r.setUniform(program, "lightDir", lightDir);
         r.setUniform(program, "objectColor", objectColor);
@@ -7420,12 +7425,18 @@ int triangles_monk[] = {
         r.drawObject(monkey);
 
         // translate the model to the right
-        model = translate(mat4(1.0f), vec3(1.5f, 0.0f, 0.0f));
-        rotation = rotate(mat4(1.0f), radians(40*time), glm::vec3(0.0f,1.0f,0.0f));
+        model = translate(mat4(1.0f), vec3(2.0f, 0.0f, 0.0f));
+        rotation = rotate(mat4(1.0f), radians(35*time), glm::vec3(0.0f,1.0f,0.0f));
         r.setUniform(program, "transform", projection * view * rotation * model);
         r.setUniform(program, "wsTransform", rotation*model);
         r.setUniform(program, "objectColor", ballColor);
+		r.drawObject(ball);
 
+        //drawing the moon
+        moonRotation = rotate(mat4(1.0f), radians(150*time), glm::vec3(0.0f,1.0f,0.0f));
+        r.setUniform(program, "transform", projection * view * rotation * model * (moonRotation * moonOffset * moonScale));
+        r.setUniform(program, "wsTransform", rotation*model*(moonRotation * moonOffset * moonScale));
+        r.setUniform(program, "objectColor", moonColor);
 		r.drawObject(ball);
         r.show();
     }
