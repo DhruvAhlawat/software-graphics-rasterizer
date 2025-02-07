@@ -29,5 +29,8 @@ target_link_libraries(a1 glm::glm OpenGL::GL SDL2::SDL2)
 add_executable(e6 examples/e6.cpp)
 target_link_libraries(e6 a1)
 
+add_executable(trial examples/trial.cpp)
+target_link_libraries(trial a1)
+
 # add_executable(et examples/et.cpp)
 # target_link_libraries(et a1)

@@ -13,52 +13,57 @@ int main() {
 
     R::ShaderProgram program = r.createShaderProgram(
         r.vsNormalTransform(),
-        r.fsDiffuseLighting()
-        // r.fsSpecularLighting()
+        // r.fsDiffuseLighting()
+        r.fsSpecularLighting()
     );
 
-    float vertices[] = {
-   -0.5,  -0.5, -0.5, 1.0,
-         0.5,  -0.5, -0.5, 1.0,
-        -0.5,   0.5, -0.5, 1.0,
-    // -0.250000, 0.250000, -0.250000, 1.0,
-    // 0.250000, -0.250000, 0.250000, 1.0,
-    // 0.250000, 0.250000, 0.250000,
-    // 0.250000, -0.250000, -0.250000, 1.0,
-    // 0.250000, 0.250000, -0.250000, 1.0
+    float vertices[] = 
+    {
+        // -0.5,  -0.5, -0.5, 1.0,
+        //  0.5,  -0.5, -0.5, 1.0,
+        // -0.5,   0.5, -0.5, 1.0,
+-0.250000, -0.250000, 0.250000, 1.000,
+-0.250000, 0.250000, 0.250000, 1.000,
+-0.250000, -0.250000, -0.250000, 1.000,
+-0.250000, 0.250000, -0.250000, 1.000,
+0.250000, -0.250000, 0.250000, 1.000,
+0.250000, 0.250000, 0.250000, 1.000,
+0.250000, -0.250000, -0.250000, 1.000,
+0.250000, 0.250000, -0.250000, 1.000
     };
 
     float normals[] = {
-0.0,  0.0, -1.0,
-        0.0,  0.0, -1.0,
-        0.0,  0.0, -1.0,
-    // -0.250000, 0.250000, -0.250000,
-    // 0.250000, -0.250000, 0.250000,
-    // 0.250000, 0.250000, 0.250000,
-    // 0.250000, -0.250000, -0.250000,
-    // 0.250000, 0.250000, -0.250000
+
+        -0.250000, -0.250000, 0.250000,
+        -0.250000, 0.250000, 0.250000,
+        -0.250000, -0.250000, -0.250000,
+        -0.250000, 0.250000, -0.250000,
+        0.250000, -0.250000, 0.250000,
+        0.250000, 0.250000, 0.250000,
+        0.250000, -0.250000, -0.250000,
+        0.250000, 0.250000, -0.250000,
     };
 
     int triangles[] = 
     {
-        2, 3, 1,
-        // 4, 7, 3,
-        // 8, 5, 7,
-        // 6, 1, 5,
-        // 7, 1, 3,
-        // 4, 6, 8,
-        // 2, 4, 3,
-        // 4, 8, 7,
-        // 8, 6, 5,
-        // 6, 2, 1,
-        // 7, 5, 1,
-        // 4, 2, 6
+      1, 2, 0,
+3, 6, 2,
+7, 4, 6,
+5, 0, 4,
+6, 0, 2,
+3, 5, 7,
+1, 3, 2,
+3, 7, 6,
+7, 5, 4,
+5, 1, 0,
+6, 4, 0,
+3, 1, 5
     };
     
 	R::Object shape = r.createObject();
-	r.setVertexAttribs(shape, 0, 3, 4, vertices);
-	r.setVertexAttribs(shape, 1, 3, 3, normals);
-	r.setTriangleIndices(shape, 1, triangles);
+	r.setVertexAttribs(shape, 0, 8, 4, vertices);
+	r.setVertexAttribs(shape, 1, 8, 3, normals);
+	r.setTriangleIndices(shape, 12, triangles);
     r.enableDepthTest();
     vec3 objectColor(0.8f, 0.4f, 0.248f);
     vec3 ambientColor(0.2f, 0.1f, 0.062f);
@@ -87,9 +92,9 @@ int main() {
         r.setUniform(program, "objectColor", objectColor);
         r.setUniform(program, "ambientColor", ambientColor);
         // for specular lighting
-        // r.setUniform(program, "viewPos", vec3(inverse(view) * vec4(0.0f, 0.0f, 0.0f, 1.0f)));
-        // r.setUniform(program, "specularColor", specularColor);
-        // r.setUniform(program, "blinnpow", 32);
+        r.setUniform(program, "viewPos", vec3(inverse(view) * vec4(0.0f, 0.0f, 0.0f, 1.0f)));
+        r.setUniform(program, "specularColor", specularColor);
+        r.setUniform(program, "blinnpow", 32);
 		r.drawObject(shape);
         r.show();
     }
