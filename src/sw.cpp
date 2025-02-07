@@ -183,6 +183,7 @@ namespace COL781 {
 
 				glm::vec3 normal = in.get<glm::vec3>(1);
 				normal = normalize(glm::mat3(glm::transpose(glm::inverse(wsTransform))) * normal); 
+				normal = normalize(glm::mat3(glm::transpose(glm::inverse(wsTransform))) * normal); 
 
 				out.set<glm::vec4>(0, screenVertex);
 				out.set<glm::vec3>(1, normal);
