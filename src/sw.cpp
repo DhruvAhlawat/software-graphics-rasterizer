@@ -131,6 +131,7 @@ namespace COL781 {
 				glm::vec3 light_col = uniforms.get<glm::vec3>("lightColor");
 				glm::vec3 light_dir = uniforms.get<glm::vec3>("lightDir");
 				glm::vec3 ambient_col = uniforms.get<glm::vec3>("ambientColor");
+				glm::vec3 specular_color = uniforms.get<glm::vec3>("specularColor");
 				glm::vec3 obj_col = uniforms.get<glm::vec3>("objectColor");
 
 				glm::vec3 normal = in.get<glm::vec3>(1);
@@ -139,9 +140,10 @@ namespace COL781 {
 
 				glm::vec3 I = pow(light_col, glm::vec3(2.2f));
 				glm::vec3 ka = pow(ambient_col, glm::vec3(2.2f));
+				glm::vec3 ks = pow(specular_color, glm::vec3(2.2f));
 				glm::vec3 kd = pow(obj_col, glm::vec3(2.2f));
 
-				float diff = std::max(dot(normalize(normal), normalize(light_dir)), 0.0f);
+				float diff = std::max(dot(normalize(normal), (light_dir)), 0.0f);
 
 				glm::vec3 diffuse = diff * I * kd;
 				glm::vec3 linColor = ka + diffuse;
@@ -157,11 +159,9 @@ namespace COL781 {
 				float s_diff = std::max(dot(normal, l), 0.0f);
 				int n = uniforms.get<int>("blinnpow");
 				float s_spec = pow(std::max(dot(normal, h), 0.0f), n);
-
 				glm::vec3 specular = s_spec * I;
-				glm::vec3 color_spec = specular * kd;
-				linColor = linColor + color_spec;
-				glm::vec3 color = pow(linColor, glm::vec3(1.0f / 2.2f));
+				glm::vec3 color_spec = specular * ks;
+				glm::vec3 color = pow(linColor + color_spec, glm::vec3(1.0f / 2.2f));
 
 				return glm::vec4(color, 1.0f);
 			};
