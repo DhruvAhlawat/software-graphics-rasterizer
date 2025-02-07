@@ -59,13 +59,7 @@ namespace COL781 {
 			glm::vec4 color[3]; //vertices of the triangle
 			Attribs attribs[3];
 
-			triangle(Attribs a, Attribs b, Attribs c)
-			{
-				attribs[0] = a; attribs[1] = b; attribs[2] = c;
-				v[0] = a.get<glm::vec4>(0);
-				v[1] = b.get<glm::vec4>(0);
-				v[2] = c.get<glm::vec4>(0);
-			}
+			triangle(Attribs a, Attribs b, Attribs c);
 			triangle(glm::vec3 v0,glm::vec3 v1,glm::vec3 v2) {v[0] = v0; v[1] = v1; v[2] = v2;}
 			triangle(glm::vec3 verts[3], glm::vec4 col[3]) 
 			{

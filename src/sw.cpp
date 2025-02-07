@@ -28,10 +28,13 @@ namespace COL781 {
 			// out.w = in.w; //stores the -z coordinate now for further processing later.
 			return out;
 		}
-
-
-		// Built-in shaders
-
+		triangle::triangle(Attribs a, Attribs b, Attribs c)
+			{
+				attribs[0] = a; attribs[1] = b; attribs[2] = c;
+				v[0] = a.get<glm::vec4>(0);
+				v[1] = b.get<glm::vec4>(0);
+				v[2] = c.get<glm::vec4>(0);
+			}
 
 		VertexShader Rasterizer::vsIdentity() {
 			return [](const Uniforms &uniforms, const Attribs &in, Attribs &out) {
@@ -376,9 +379,7 @@ namespace COL781 {
 						float iz = a / t.v[0].z + b / t.v[1].z + c / t.v[2].z;	// interpolated 1/z
 
 						zbuffer[x + frameWidth*y] = z;
-						
 						Attribs curattrib;
-						
 						glm::vec4 color = (a*t.color[0] /t.v[0].z + b*t.color[1] /t.v[1].z + c*t.color[2] /t.v[2].z)/iz;
 						//calculate the gradient over here using the formula of area with this as the dividing point.
 						Uint32 colorUint = SDL_MapRGBA(framebuffer->format, (Uint8)(color.r * 255), (Uint8)(color.g * 255), (Uint8)(color.b * 255), (Uint8)(color.a * 255));

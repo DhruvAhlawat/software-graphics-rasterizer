@@ -1,12 +1,12 @@
 #include "../src/a1.hpp"
 #include <glm/gtc/matrix_transform.hpp>
-// namespace R = COL781::Software;
-namespace R = COL781::Hardware;
+namespace R = COL781::Software;
+// namespace R = COL781::Hardware;
 using namespace glm;
 
 int main() {
 	R::Rasterizer r;
-    if (!r.initialize("Example 1", 640, 480))
+    if (!r.initialize("Example 1", 640, 480, 1))
         return EXIT_FAILURE;
     R::ShaderProgram program = r.createShaderProgram(
         r.vsTransform(),
