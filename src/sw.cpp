@@ -143,7 +143,7 @@ namespace COL781 {
 				glm::vec3 ks = pow(specular_color, glm::vec3(2.2f));
 				glm::vec3 kd = pow(obj_col, glm::vec3(2.2f));
 
-				float diff = std::max(dot(normalize(normal), (light_dir)), 0.0f);
+				float diff = std::max(dot(normal, light_dir), 0.0f);
 
 				glm::vec3 diffuse = diff * I * kd;
 				glm::vec3 linColor = ka + diffuse;
@@ -163,7 +163,7 @@ namespace COL781 {
 				glm::vec3 color_spec = specular * ks;
 				glm::vec3 color = pow(linColor + color_spec, glm::vec3(1.0f / 2.2f));
 				color = glm::min(color, glm::vec3(1.0f));
-				
+
 				return glm::vec4(color, 1.0f);
 			};
 		}
@@ -182,7 +182,7 @@ namespace COL781 {
 				glm::vec4 worldVertex = wsTransform * vertex; //world position for the vertex.
 
 				glm::vec3 normal = in.get<glm::vec3>(1);
-				normal = glm::mat3(glm::transpose(glm::inverse(wsTransform))) * normal; 
+				normal = normalize(glm::mat3(glm::transpose(glm::inverse(wsTransform))) * normal); 
 
 				out.set<glm::vec4>(0, screenVertex);
 				out.set<glm::vec3>(1, normal);
