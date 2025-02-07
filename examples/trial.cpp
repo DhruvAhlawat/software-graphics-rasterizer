@@ -19,7 +19,7 @@ int main() {
 
     float vertices[] = 
     {
-      0.000000, -0.500000, 0.000000, 1.00 ,
+0.000000, -0.500000, 0.000000, 1.00 ,
 0.212661, -0.425327, 0.154506, 1.00 ,
 -0.081228, -0.425327, 0.249998, 1.00 ,
 0.361804, -0.223610, 0.262863, 1.00 ,
@@ -592,6 +592,7 @@ int main() {
 	R::Object shape = r.createObject();
 	r.setVertexAttribs(shape, 0, 240, 4, vertices);
 	r.setVertexAttribs(shape, 1, 240, 3, normals);
+    
 	r.setTriangleIndices(shape, 80, triangles);
     r.enableDepthTest();
     vec3 objectColor(0.8f, 0.4f, 0.248f);
@@ -600,6 +601,7 @@ int main() {
 
     // The transformation matrix.
     mat4 model = mat4(1.0f);
+    mat4 rotation = mat4(1.0f);
 	mat4 view = translate(mat4(1.0f), vec3(0.0f, 0.0f, -3.0f));
     view = rotate(view, radians(45.0f), vec3(1.0f, 0.0f, 0.0f));
     mat4 projection = perspective(radians(60.0f), (float)width/(float)height, 0.1f, 100.0f);
@@ -613,9 +615,10 @@ int main() {
         r.clear(vec4(0.1, 0.1, 0.1, 1.0));
         r.useShaderProgram(program);
         model = rotate(mat4(1.0f), radians(45.0f), vec3(0.0f,1.0f,0.0f));
+        rotation = rotate(mat4(1.0f), radians(10*time), glm::vec3(1.0f,1.0f,1.0f));
         lightDir = vec3(cos(time), 0.5f, sin(time));
-        r.setUniform(program, "transform", projection * view * model);
-        r.setUniform(program, "wsTransform", model);
+        r.setUniform(program, "transform", projection * view * model * rotation);
+        r.setUniform(program, "wsTransform", model * rotation);
         r.setUniform(program, "lightColor", lightColor);
         r.setUniform(program, "lightDir", lightDir);
         r.setUniform(program, "objectColor", objectColor);
