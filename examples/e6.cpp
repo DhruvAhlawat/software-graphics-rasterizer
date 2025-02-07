@@ -8,7 +8,7 @@ using namespace glm;
 int main() {
 	R::Rasterizer r;
 	int width = 640, height = 480;
-    if (!r.initialize("Example 6", width, height))
+    if (!r.initialize("Example 6", width, height,2))
         return EXIT_FAILURE;
 
     R::ShaderProgram program = r.createShaderProgram(
