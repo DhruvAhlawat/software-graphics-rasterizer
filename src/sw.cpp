@@ -18,6 +18,15 @@ namespace COL781 {
 		template <> void Attribs::set(int index, glm::vec3 value);
 		template <> void Attribs::set(int index, glm::vec4 value);
 
+		int Attribs::size()
+		{
+			return this->values.size(); //simply returns the size of the values vector in the attribs. EZ
+		}
+		int Attribs::getDim(int pos)
+		{
+			return dims[pos];
+		}
+
 		glm::vec4 depthpos_to_screenpos(glm::vec4 in)
 		{
 			glm::vec4 out = in;
@@ -57,6 +66,7 @@ namespace COL781 {
 		}
 
 		VertexShader Rasterizer::vsColor() {
+			inPerspective = false;
 			return [](const Uniforms &uniforms, const Attribs &in, Attribs &out) {
 				glm::vec4 vertex = in.get<glm::vec4>(0);
 				glm::vec4 color = in.get<glm::vec4>(1);
@@ -391,10 +401,39 @@ namespace COL781 {
 						//else we are using depth information.
 						float iz = a / t.v[0].z + b / t.v[1].z + c / t.v[2].z;	// interpolated 1/z
 						zbuffer[x + frameWidth*y] = z;
-						Attribs curattrib;
 						glm::vec4 color;
 						if(inPerspective) { color = (a*t.color[0] /t.v[0].z + b*t.color[1] /t.v[1].z + c*t.color[2] /t.v[2].z)/iz;}
 						else { color = (a*t.color[0] + b*t.color[1] + c*t.color[2]);}
+						Attribs curAttribs;
+						for(int i = 0; i < t.attribs[0].size(); i++)
+						{
+							int curdim = t.attribs[0].getDim(i);
+							if(curdim == 4)
+							{
+								glm::vec4 cur;
+								if(inPerspective)
+									cur = (a*t.attribs[0].get<glm::vec4>(i)/t.v[0].z + b*t.attribs[1].get<glm::vec4>(i)/t.v[1].z + c*t.attribs[2].get<glm::vec4>(i)/t.v[2].z)/iz;
+								else
+									cur =  a*t.attribs[0].get<glm::vec4>(i) + b*t.attribs[1].get<glm::vec4>(i) + c*t.attribs[2].get<glm::vec4>(i);
+								
+								curAttribs.set<glm::vec4>(i, cur);
+							}
+							else if(curdim == 3)
+							{
+								glm::vec3 cur;
+								if(inPerspective)
+									cur = (a*t.attribs[0].get<glm::vec3>(i)/t.v[0].z + b*t.attribs[1].get<glm::vec3>(i)/t.v[1].z + c*t.attribs[2].get<glm::vec3>(i)/t.v[2].z)/iz;
+								else
+									cur =  a*t.attribs[0].get<glm::vec3>(i) + b*t.attribs[1].get<glm::vec3>(i) + c*t.attribs[2].get<glm::vec3>(i);
+								
+								curAttribs.set<glm::vec3>(i, cur);
+							}
+							else
+							{
+								std::cerr << "NO SUITABLE ATTRIB COPYING METHOD YET" << std::endl;
+							}
+						}
+						color = currentShader->fs(currentShader->uniforms, curAttribs);
 						//calculate the gradient over here using the formula of area with this as the dividing point.
 						Uint32 colorUint = SDL_MapRGBA(framebuffer->format, (Uint8)(color.r * 255), (Uint8)(color.g * 255), (Uint8)(color.b * 255), (Uint8)(color.a * 255));
 		                pixels[x + frameWidth*y] = colorUint;
