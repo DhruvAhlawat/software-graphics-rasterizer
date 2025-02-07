@@ -97,18 +97,16 @@ namespace COL781 {
 		{
 			return [](const Uniforms &uniforms, const Attribs &in) 
 			{
+				// glm::mat4 wsTransform = uniforms.get<glm::mat4>("wsTransform");
 				glm::vec3 light_col = uniforms.get<glm::vec3>("lightColor");
 				glm::vec3 light_dir = uniforms.get<glm::vec3>("lightDir");
 				glm::vec3 ambient_col = uniforms.get<glm::vec3>("ambientColor");
 				glm::vec3 obj_col = uniforms.get<glm::vec3>("objectColor");
-
 				glm::vec3 normal = in.get<glm::vec3>(1);
-
 				normal = normalize(normal);
 				float intensity = std::max(dot(normal, light_dir), 0.0f);
-
-				glm::vec3 color = obj_col * (intensity * light_col + ambient_col);
-
+				glm::vec3 diffuse = intensity * light_col * obj_col;
+				glm::vec3 color = (diffuse + ambient_col);
 				return glm::vec4(color, 1.0f);
 			};
 		}
@@ -122,7 +120,6 @@ namespace COL781 {
 			{
 				glm::mat4 wsTransform = uniforms.get<glm::mat4>("wsTransform");
 				glm::mat4 transform = uniforms.get<glm::mat4>("transform");
-
 				glm::vec4 vertex = in.get<glm::vec4>(0);
                 glm::vec4 screenVertex = depthpos_to_screenpos(transform * vertex); //screen position for the vertex
 				glm::vec4 worldVertex = wsTransform * vertex; //world position for the vertex.
