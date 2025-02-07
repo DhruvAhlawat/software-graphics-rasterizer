@@ -25,6 +25,7 @@ namespace COL781 {
 			out.y = in.y/in.w;
 			// out.z = in.z/in.w;
 			out.z = -in.w;
+			// std::cout << in.x << "," << in.y << "," << in.z << "," << in.w << std::endl;
 			// out.w = in.w; //stores the -z coordinate now for further processing later.
 			return out;
 		}
@@ -39,7 +40,8 @@ namespace COL781 {
 		VertexShader Rasterizer::vsIdentity() {
 			return [](const Uniforms &uniforms, const Attribs &in, Attribs &out) {
 				glm::vec4 vertex = in.get<glm::vec4>(0);
-				return depthpos_to_screenpos(vertex);
+				// vertex =cl depthpos_to_screenpos(vertex);
+				return vertex;
 			};
 		}
 
@@ -48,7 +50,7 @@ namespace COL781 {
 				glm::vec4 vertex = in.get<glm::vec4>(0);
 				glm::mat4 transform = uniforms.get<glm::mat4>("transform");
 				vertex = transform * vertex;
-				vertex = depthpos_to_screenpos(vertex);
+				// if(this->inPerspective) {vertex = depthpos_to_screenpos(vertex);}
 				return vertex;
 
 			};
@@ -59,7 +61,7 @@ namespace COL781 {
 				glm::vec4 vertex = in.get<glm::vec4>(0);
 				glm::vec4 color = in.get<glm::vec4>(1);
 				out.set<glm::vec4>(1, color);
-				vertex = depthpos_to_screenpos(vertex);
+				// vertex = depthpos_to_screenpos(vertex);
 				return vertex;
 			};
 		}
@@ -94,6 +96,7 @@ namespace COL781 {
 
 		VertexShader Rasterizer::vsNormalTransform()
 		{
+			inPerspective = true; //manually setting.
 			return [](const Uniforms &uniforms, const Attribs &in, Attribs &out) 
 			{
 				glm::mat4 wsTransform = uniforms.get<glm::mat4>("wsTransform");
@@ -116,6 +119,7 @@ namespace COL781 {
 
 		VertexShader Rasterizer::vsColorTransform() 
 		{
+			inPerspective = true;
 			return [](const Uniforms &uniforms, const Attribs &in, Attribs &out) {
 				glm::vec4 vertex = in.get<glm::vec4>(0);
 				glm::mat4 transform = uniforms.get<glm::mat4>("transform");
@@ -259,7 +263,6 @@ namespace COL781 {
 				{
 					vals.push_back(data[i*d + j]);
 				}
-
 				if( d == 4)
 				{
 					glm::vec4 vals_vec4(vals[0], vals[1], vals[2], vals[3]);
@@ -314,6 +317,7 @@ namespace COL781 {
 			// delete currentShader;
 			currentShader = NULL;
 		}
+
 		Uint32 Rasterizer::colorLerp(Uint32 c1, Uint32 c2, float t) // t must be between 0 and 1. 
 		{
 		    Uint8 r1, g1, b1, a1;
@@ -359,12 +363,11 @@ namespace COL781 {
 		            }
 		            if (count > 0)
 		            {	
-
 						//Works in 2d. the color gradient that I am providing right now. 
 						float a = areaTriangle(glm::vec2(x,y), t.v[1], t.v[2])/totalArea;
 						float b = areaTriangle(t.v[0], glm::vec2(x,y), t.v[2])/totalArea;
 						float c = areaTriangle(t.v[0], t.v[1], glm::vec2(x,y))/totalArea;
-						float z = a * t.v[0].z + b * t.v[1].z + c * t.v[2].z;
+						float z = a*t.v[0].z + b*t.v[1].z + c*t.v[2].z; //we make sure that the z coordinate actually always holds the right z coord value in the drawTriangle.
 						if (depthTest && zbuffer[x + frameWidth*y] < z)
 						{
 							continue;
@@ -374,16 +377,16 @@ namespace COL781 {
 							t.v[0].z = 1; t.v[1].z = 1; t.v[2].z = 1;
 							z = 1;
 						}
-
 						//else we are using depth information.
 						float iz = a / t.v[0].z + b / t.v[1].z + c / t.v[2].z;	// interpolated 1/z
-
 						zbuffer[x + frameWidth*y] = z;
 						Attribs curattrib;
-						glm::vec4 color = (a*t.color[0] /t.v[0].z + b*t.color[1] /t.v[1].z + c*t.color[2] /t.v[2].z)/iz;
+						glm::vec4 color;
+						if(inPerspective) { color = (a*t.color[0] /t.v[0].z + b*t.color[1] /t.v[1].z + c*t.color[2] /t.v[2].z)/iz;}
+						else { color = (a*t.color[0] + b*t.color[1] + c*t.color[2]);}
 						//calculate the gradient over here using the formula of area with this as the dividing point.
 						Uint32 colorUint = SDL_MapRGBA(framebuffer->format, (Uint8)(color.r * 255), (Uint8)(color.g * 255), (Uint8)(color.b * 255), (Uint8)(color.a * 255));
-		                pixels[x + frameWidth*y] = colorUint; // colorLerp(pixels[x + frameWidth*y], color,  (float)count/(float)total);
+		                pixels[x + frameWidth*y] = colorUint;
 		                // pixels[x + frameWidth*y] = colorLerp(pixels[x + frameWidth*y], colorUint,  (float)count/(float)total);
 		            }
 		        }

@@ -99,6 +99,7 @@ namespace COL781 {
 			int frameWidth, frameHeight, spp;
 			std::vector<float> zbuffer; //need to change this later
 			bool depthTest = false;
+			bool inPerspective = false; //variable should be set by the user, but since examples don't have anything like that, we set this up in vsColorTransform and vsNormalTransform.
 			SDL_Surface *windowSurface;
 			SDL_Surface *framebuffer;
 			ShaderProgram *currentShader = nullptr;
