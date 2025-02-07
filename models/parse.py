@@ -1,12 +1,21 @@
 import argparse
+import sys
+# parser = argparse.ArgumentParser(description='Parse 3D model data.')
+# parser.add_argument('input', type=str, help='Path to the input file', default='models/icosphere.obj')
+# parser.add_argument('output', type=str, help='Path to the output file', default='models/icosphere_data.txt')
+# args = parser.parse_args()
 
-parser = argparse.ArgumentParser(description='Parse 3D model data.')
-parser.add_argument('input_path', type=str, help='Path to the input file', default='models/icosphere.obj')
-parser.add_argument('output_path', type=str, help='Path to the output file', default='models/icosphere_data.txt')
-args = parser.parse_args()
+# INPUT_PATH = args.input_path
 
-INPUT_PATH = args.input_path
-OUTPUT_PATH = args.output_path
+if(len(sys.argv) < 2):
+	print("pls add input file");
+	exit();
+
+INPUT_PATH = sys.argv[1]; 
+OUTPUT_PATH = 'output.txt'
+if(len(sys.argv) >= 3):
+	OUTPUT_PATH = sys.argv[2];
+
 
 with open(INPUT_PATH, 'r') as file:
 	content = file.read().split('\n')
@@ -23,7 +32,7 @@ with open(OUTPUT_PATH, 'w') as outfile:
 		if line[0] != 'v':
 			break
 		line = line[1:]
-		outfile.write(', '.join(line) + '1.0 ,\n')
+		outfile.write(', '.join(line) + ', 1.00 ,\n')
 		ind+=1
 	outfile.write(f"{nv} vertices\n")
 	outfile.write('-'*50+'\n\n')
