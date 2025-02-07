@@ -3,7 +3,7 @@
 #include <ctime>
 #include<iostream>
 
-namespace R = COL781::Hardware;
+namespace R = COL781::Software;
 using namespace glm;
 
 int main() {
@@ -38,7 +38,7 @@ int main() {
 
     while (!r.shouldQuit()) {
         time_t now = time(0);
-        tm *ltm = localtime(&now);
+        tm *ltm = gmtime(&now);
         ltm->tm_gmtoff = 19800;
         ltm->tm_min = (ltm->tm_min + 30);
         if(ltm->tm_min >= 60)
@@ -57,6 +57,7 @@ int main() {
 
         r.clear(vec4(1.0, 1.0, 1.0, 1.0));
         r.useShaderProgram(program);
+        r.setUniform<vec4>(program, "color", vec4(1.0, 0.0, 0.0, 1.0));
 
         // hour hand
         mat4 model = rotate(mat4(1.0f), hourAngle, vec3(0.0f, 0.0f, 1.0f)) * translate(mat4(1.0f), vec3(0.0f, 0.15f, 0.0f)) * scale(mat4(1.0f), vec3(0.08f, 0.3f, 1.0f));
@@ -81,7 +82,6 @@ int main() {
                     * scale(mat4(1.0f), vec3(0.02f, 0.09f, 1.0f));
 
             r.setUniform(program, "transform", projection * view * model);
-            r.setUniform<vec4>(program, "color", vec4(1.0, 0.0, 0.0, 1.0));
             r.drawObject(square);
 
             for (int j=0; j<5; j++){    // minute markings
