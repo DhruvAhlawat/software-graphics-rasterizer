@@ -87,8 +87,19 @@ namespace COL781 {
 		{
 			return [](const Uniforms &uniforms, const Attribs &in) 
 			{
-				glm::vec4 color = in.get<glm::vec4>(1);
-				return color;
+				glm::vec3 light_col = uniforms.get<glm::vec3>("lightColor");
+				glm::vec3 light_dir = uniforms.get<glm::vec3>("lightDir");
+				glm::vec3 ambient_col = uniforms.get<glm::vec3>("ambientColor");
+				glm::vec3 obj_col = uniforms.get<glm::vec3>("objectColor");
+
+				glm::vec3 normal = in.get<glm::vec3>(1);
+
+				normal = normalize(normal);
+				float intensity = std::max(dot(normal, light_dir), 0.0f);
+
+				glm::vec3 color = obj_col * (intensity * light_col + ambient_col);
+
+				return glm::vec4(color, 1.0f);
 			};
 		}
 
@@ -423,7 +434,11 @@ namespace COL781 {
 				drawTriangle(t,1); //draw the triangle.
 			}	
 		}
-	
+		template <> void Rasterizer::setUniform(ShaderProgram &program, const std::string &name, glm::vec3 value)
+		{
+			program.uniforms.set<glm::vec3>(name, value);
+		}
+
 		template <> void Rasterizer::setUniform(ShaderProgram &program, const std::string &name, glm::vec4 value)
 		{
 			program.uniforms.set<glm::vec4>(name, value);
