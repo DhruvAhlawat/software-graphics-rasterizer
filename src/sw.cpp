@@ -162,7 +162,8 @@ namespace COL781 {
 				glm::vec3 specular = s_spec * I;
 				glm::vec3 color_spec = specular * ks;
 				glm::vec3 color = pow(linColor + color_spec, glm::vec3(1.0f / 2.2f));
-
+				color = glm::min(color, glm::vec3(1.0f));
+				
 				return glm::vec4(color, 1.0f);
 			};
 		}
