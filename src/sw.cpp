@@ -464,6 +464,7 @@ namespace COL781 {
 						for(int i = 0; i < t.attribs[0].size(); i++)
 						{
 							int curdim = t.attribs[0].getDim(i);
+							// std::cout << "trying to get attrib value at index: " << i << " of dimension: " << curdim << std::endl;
 							if(curdim == 4)
 							{
 								glm::vec4 cur;
@@ -471,7 +472,6 @@ namespace COL781 {
 									cur = (a*t.attribs[0].get<glm::vec4>(i)/t.v[0].z + b*t.attribs[1].get<glm::vec4>(i)/t.v[1].z + c*t.attribs[2].get<glm::vec4>(i)/t.v[2].z)/iz;
 								else
 									cur =  a*t.attribs[0].get<glm::vec4>(i) + b*t.attribs[1].get<glm::vec4>(i) + c*t.attribs[2].get<glm::vec4>(i);
-								
 								curAttribs.set<glm::vec4>(i, cur);
 							}
 							else if(curdim == 3)
