@@ -21,7 +21,7 @@ with open(INPUT_PATH, 'r') as file:
 	content = file.read().split('\n')
 
 with open(OUTPUT_PATH, 'w') as outfile:
-	outfile.write("Vertices\n")	# Vertices
+	outfile.write("float vertices[] = {\n")	# Vertices
 	ind = 0
 	while content[ind].split()[0] != 'v':
 		ind += 1
@@ -34,10 +34,9 @@ with open(OUTPUT_PATH, 'w') as outfile:
 		line = line[1:]
 		outfile.write(', '.join(line) + ', 1.00 ,\n')
 		ind+=1
-	outfile.write(f"{nv} vertices\n")
-	outfile.write('-'*50+'\n\n')
+	outfile.write("};\n\n")
 
-	outfile.write("Normals\n")	# Normals
+	outfile.write("\tfloat normals[] = {\n")	# Normals
 
 	while content[ind].split()[0] != 'vn':
 		ind+=1
@@ -51,10 +50,9 @@ with open(OUTPUT_PATH, 'w') as outfile:
 		outfile.write(', '.join(line) + ',\n')
 		ind+=1
 
-	outfile.write(f"{nn} normals\n")
-	outfile.write('-'*50+'\n\n')
+	outfile.write("};\n")
 
-	outfile.write("Faces\n")
+	outfile.write("\tint triangles[] = {\n")
 
 	while content[ind].split()[0] != 'f':
 		ind+=1
@@ -69,4 +67,5 @@ with open(OUTPUT_PATH, 'w') as outfile:
 		outfile.write(', '.join(line) + ',\n')
 		ind+=1
 		if ind>=len(content) or content[ind]=="": break
-	outfile.write(f"{nf} faces\n")
+	outfile.write("};\n")
+	outfile.write(f"R::Object shape = r.createObject();\nr.setVertexAttribs(shape, 0, {nv}, 4, vertices);\nr.setVertexAttribs(shape, 1, {nn}, 3, normals);\nr.setTriangleIndices(shape, {nf}, triangles);\n")
