@@ -8,7 +8,7 @@ using namespace glm;
 int main() {
 	R::Rasterizer r;
 	int width = 640, height = 480;
-    if (!r.initialize("Example 6", width, height,2))
+    if (!r.initialize("Example 6", width, height))
         return EXIT_FAILURE;
 
     R::ShaderProgram program = r.createShaderProgram(
@@ -7373,21 +7373,23 @@ int triangles_monk[] = {
     r.setTriangleIndices(monkey, 967, triangles_monk);
 
 
-	R::Object shape = r.createObject();
-	r.setVertexAttribs(shape, 0, 240, 4, vertices);
-	r.setVertexAttribs(shape, 1, 240, 3, normals);
-	r.setTriangleIndices(shape, 80, triangles);
+	R::Object ball = r.createObject();
+	r.setVertexAttribs(ball, 0, 240, 4, vertices);
+	r.setVertexAttribs(ball, 1, 240, 3, normals);
+	r.setTriangleIndices(ball, 80, triangles);
 
     r.enableDepthTest();
-    vec3 objectColor(0.8f, 0.4f, 0.248f);
+    vec3 objectColor(1.0f, 0.4f, 0.71f);
+    vec3 ballColor(0.1f, 0.68f, 0.9f);
+
     vec3 ambientColor(0.2f, 0.1f, 0.062f);
     vec3 specularColor(0.8f, 0.8f, 0.8f);
 
     // The transformation matrix.
     mat4 model = mat4(1.0f);
     mat4 rotation = mat4(1.0f);
-	mat4 view = translate(mat4(1.0f), vec3(0.0f, 0.0f, -3.0f));
-    view = rotate(view, radians(45.0f), vec3(1.0f, 0.0f, 0.0f));
+	mat4 view = translate(mat4(1.0f), vec3(0.0f, 0.0f, -4.0f));
+    view = rotate(view, radians(30.0f), vec3(1.0f, 0.0f, 0.0f));
     mat4 projection = perspective(radians(60.0f), (float)width/(float)height, 0.1f, 100.0f);
 
     // Lighting parameters.
@@ -7401,10 +7403,10 @@ int triangles_monk[] = {
         float time = SDL_GetTicks64()*1e-3;
         r.clear(vec4(0.1, 0.1, 0.1, 1.0));
         r.useShaderProgram(program);
-        model = rotate(mat4(1.0f), radians(45.0f), vec3(0.0f,1.0f,1.0f));
-        rotation = rotate(mat4(1.0f), radians(10*time), glm::vec3(1.0f,1.0f,1.0f));
-        lightDir = vec3(cos(time), 0.5f, sin(time));
-        r.setUniform(program, "transform", projection * view * model);
+        model = rotate(mat4(1.0f), radians(0.0f), vec3(0.0f,1.0f,1.0f));
+        rotation = rotate(mat4(1.0f), radians(-60.0f), glm::vec3(1.0f,0.7f,0.0f));
+        // lightDir = vec3(cos(time), 0.5f, sin(time));
+        r.setUniform(program, "transform", projection * view * model *rotation);
         r.setUniform(program, "wsTransform", model);
         r.setUniform(program, "lightColor", lightColor);
         r.setUniform(program, "lightDir", lightDir);
@@ -7415,9 +7417,16 @@ int triangles_monk[] = {
         r.setUniform(program, "viewPos", vec3(inverse(view) * vec4(0.0f, 0.0f, 0.0f, 1.0f)));
         r.setUniform(program, "specularColor", specularColor);
         r.setUniform(program, "blinnpow", 32);
-		r.drawObject(shape);
-
         r.drawObject(monkey);
+
+        // translate the model to the right
+        model = translate(mat4(1.0f), vec3(1.5f, 0.0f, 0.0f));
+        rotation = rotate(mat4(1.0f), radians(40*time), glm::vec3(0.0f,1.0f,0.0f));
+        r.setUniform(program, "transform", projection * view * rotation * model);
+        r.setUniform(program, "wsTransform", rotation*model);
+        r.setUniform(program, "objectColor", ballColor);
+
+		r.drawObject(ball);
         r.show();
     }
     r.deleteShaderProgram(program);
