@@ -145,7 +145,6 @@ namespace COL781 {
 
 				glm::vec3 diffuse = diff * I * kd;
 				glm::vec3 linColor = ka + diffuse;
-				glm::vec3 color = pow(linColor, glm::vec3(1.0f / 2.2f));
 
 				// Blinn-Phong Specular lighting:
 
@@ -156,13 +155,13 @@ namespace COL781 {
 				glm::vec3 h = normalize(view_dir + l);
 
 				float s_diff = std::max(dot(normal, l), 0.0f);
-				int n=10;
+				int n = uniforms.get<int>("blinnpow");
 				float s_spec = pow(std::max(dot(normal, h), 0.0f), n);
 
 				glm::vec3 specular = s_spec * I;
 				glm::vec3 color_spec = specular * kd;
-				color = color + color_spec;
-				
+				linColor = linColor + color_spec;
+				glm::vec3 color = pow(linColor, glm::vec3(1.0f / 2.2f));
 
 				return glm::vec4(color, 1.0f);
 			};
@@ -529,6 +528,10 @@ namespace COL781 {
 				}		
 				drawTriangle(t,1); //draw the triangle.
 			}	
+		}
+		template <> void Rasterizer::setUniform(ShaderProgram &program, const std::string &name, int value)
+		{
+			program.uniforms.set<int>(name, value);
 		}
 		template <> void Rasterizer::setUniform(ShaderProgram &program, const std::string &name, glm::vec3 value)
 		{
