@@ -7392,7 +7392,7 @@ int triangles_monk[] = {
 
     mat4 moonRotation = mat4(1.0f);
     mat4 rotation = mat4(1.0f);
-	mat4 view = translate(mat4(1.0f), vec3(0.0f, -0.0f, -5.0f));
+	mat4 view = translate(mat4(1.0f), vec3(0.0f, -0.0f, -5.3f));
     mat4 monkescale = scale(mat4(1.0f), vec3(1.3f, 1.3f, 1.3f));
     view = rotate(view, radians(60.0f), vec3(1.0f, 0.0f, 0.0f));
     mat4 projection = perspective(radians(60.0f), (float)width/(float)height, 0.1f, 100.0f);
@@ -7401,12 +7401,9 @@ int triangles_monk[] = {
     vec3 lightColor(1.0f, 1.0f, 1.0f);
     vec3 lightDir(1.0f, 1.0f, 1.0f);
 
-    // vec3 objectColor(0.4f, 0.5f, 0.8f);
-
-
     while (!r.shouldQuit()) {
         float time = SDL_GetTicks64()*1e-3;
-        r.clear(vec4(0.1, 0.1, 0.1, 1.0));
+        r.clear(vec4(0.1, 0.1, 0.18, 1.0));
         r.useShaderProgram(program);
         model = rotate(mat4(1.0f), radians(0.0f), vec3(0.0f,1.0f,1.0f));
         rotation = rotate(mat4(1.0f), radians(-60.0f), glm::vec3(1.0f,0.7f,0.0f));
@@ -7424,7 +7421,7 @@ int triangles_monk[] = {
         r.setUniform(program, "blinnpow", 32);
         r.drawObject(monkey);
 
-        // translate the model to the right
+        // drawing the planet
         model = translate(mat4(1.0f), vec3(2.0f, 0.0f, 0.0f));
         rotation = rotate(mat4(1.0f), radians(35*time), glm::vec3(0.0f,1.0f,0.0f));
         r.setUniform(program, "transform", projection * view * rotation * model);
