@@ -209,7 +209,7 @@ namespace COL781 {
 
 		void checkDimension(int index, int actual, int requested) {
 			if (actual != requested) {
-				std::cout << "Warning: attribute " << index << " has dimension " << actual << " but accessed as dimension " << requested << std::endl;
+				// std::cout << "Warning: attribute " << index << " has dimension " << actual << " but accessed as dimension " << requested << std::endl;
 			}
 		}
 
