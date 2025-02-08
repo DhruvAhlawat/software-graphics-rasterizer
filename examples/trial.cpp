@@ -7392,7 +7392,7 @@ int triangles_monk[] = {
 
     mat4 moonRotation = mat4(1.0f);
     mat4 rotation = mat4(1.0f);
-	mat4 view = translate(mat4(1.0f), vec3(0.0f, -0.0f, -5.3f));
+	mat4 view = translate(mat4(1.0f), vec3(0.0f, 0.5f, -6.0f));
     mat4 monkescale = scale(mat4(1.0f), vec3(1.3f, 1.3f, 1.3f));
     view = rotate(view, radians(60.0f), vec3(1.0f, 0.0f, 0.0f));
     mat4 projection = perspective(radians(60.0f), (float)width/(float)height, 0.1f, 100.0f);

@@ -137,7 +137,6 @@ namespace COL781 {
 				glm::vec3 normal = in.get<glm::vec3>(1);
 				normal = normalize(normal);
 
-
 				glm::vec3 I = pow(light_col, glm::vec3(2.2f));
 				glm::vec3 ka = pow(ambient_col, glm::vec3(2.2f));
 				glm::vec3 ks = pow(specular_color, glm::vec3(2.2f));
