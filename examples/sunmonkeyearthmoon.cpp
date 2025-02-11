@@ -8,17 +8,12 @@ using namespace glm;
 int main() {
 	R::Rasterizer r;
 	int width = 640, height = 480;
-    if (!r.initialize("Monkey-sun earth moon", width, height, 2))
+    if (!r.initialize("Monkey-sun earth moon", width, height))
         return EXIT_FAILURE;
 
     R::ShaderProgram program = r.createShaderProgram(
         r.vsNormalTransform(),
         // r.fsDiffuseLighting()
-        r.fsSpecularPointLighting()
-    );
-
-    R::ShaderProgram sunShader = r.createShaderProgram(
-        r.vsNormalTransform(),
         r.fsSpecularLighting()
     );
 
@@ -7395,10 +7390,9 @@ int triangles_monk[] = {
     mat4 moonOffset = translate(mat4(1.0f), vec3(1.0f, 0.0f, 0.0f));
     mat4 moonScale = scale(mat4(1.0f), vec3(0.25, 0.25, 0.25));
 
-    mat4 moonRevolution = mat4(1.0f);
+    mat4 moonRotation = mat4(1.0f);
     mat4 rotation = mat4(1.0f);
-    mat4 revolution = mat4(1.0f);
-	mat4 view = translate(mat4(1.0f), vec3(0.0f, 0.5f, -6.0f));
+	mat4 view = translate(mat4(1.0f), vec3(0.0f, -0.0f, -5.0f));
     mat4 monkescale = scale(mat4(1.0f), vec3(1.3f, 1.3f, 1.3f));
     view = rotate(view, radians(60.0f), vec3(1.0f, 0.0f, 0.0f));
     mat4 projection = perspective(radians(60.0f), (float)width/(float)height, 0.1f, 100.0f);
@@ -7407,9 +7401,12 @@ int triangles_monk[] = {
     vec3 lightColor(1.0f, 1.0f, 1.0f);
     vec3 lightDir(1.0f, 1.0f, 1.0f);
 
+    // vec3 objectColor(0.4f, 0.5f, 0.8f);
+
+
     while (!r.shouldQuit()) {
         float time = SDL_GetTicks64()*1e-3;
-        r.clear(vec4(0.6, 0.2, 0.3, 1));
+        r.clear(vec4(0.1, 0.1, 0.1, 1.0));
         r.useShaderProgram(program);
         model = rotate(mat4(1.0f), radians(0.0f), vec3(0.0f,1.0f,1.0f));
         rotation = rotate(mat4(1.0f), radians(-60.0f), glm::vec3(1.0f,0.7f,0.0f));
@@ -7417,8 +7414,7 @@ int triangles_monk[] = {
         r.setUniform(program, "transform", projection * view * model * rotation * monkescale);
         r.setUniform(program, "wsTransform", model * monkescale);
         r.setUniform(program, "lightColor", lightColor);
-        // r.setUniform(program, "lightDir", lightDir);
-        r.setUniform(program, "lightPos", glm::vec3(0.0f, 0.0f, -2.0f));
+        r.setUniform(program, "lightDir", lightDir);
         r.setUniform(program, "objectColor", objectColor);
         r.setUniform(program, "ambientColor", ambientColor);
         // for specular lighting
@@ -7429,20 +7425,17 @@ int triangles_monk[] = {
         r.drawObject(monkey);
 
         // translate the model to the right
-        // r.useShaderProgram(program);
-        r.setUniform(program, "lightPos", glm::vec3(0.0f, 0.0f, 0.0f));
         model = translate(mat4(1.0f), vec3(2.0f, 0.0f, 0.0f));
-        revolution = rotate(mat4(1.0f), radians(7*time), glm::vec3(0.0f,1.0f,0.0f));
-        rotation = rotate(mat4(1.0f), radians(100*time), glm::vec3(0.0f,1.0f,0.0f));
-        r.setUniform(program, "transform", projection * view * revolution * model * rotation);
-        r.setUniform(program, "wsTransform", revolution*model*rotation);
+        rotation = rotate(mat4(1.0f), radians(35*time), glm::vec3(0.0f,1.0f,0.0f));
+        r.setUniform(program, "transform", projection * view * rotation * model);
+        r.setUniform(program, "wsTransform", rotation*model);
         r.setUniform(program, "objectColor", ballColor);
 		r.drawObject(ball);
 
         //drawing the moon
-        moonRevolution = rotate(mat4(1.0f), radians(20*time), glm::vec3(0.0f,1.0f,0.0f));
-        r.setUniform(program, "transform", projection * view * revolution * model * (moonRevolution * moonOffset * moonScale));
-        r.setUniform(program, "wsTransform", revolution*model*(moonRevolution * moonOffset * moonScale));
+        moonRotation = rotate(mat4(1.0f), radians(150*time), glm::vec3(0.0f,1.0f,0.0f));
+        r.setUniform(program, "transform", projection * view * rotation * model * (moonRotation * moonOffset * moonScale));
+        r.setUniform(program, "wsTransform", rotation*model*(moonRotation * moonOffset * moonScale));
         r.setUniform(program, "objectColor", moonColor);
 		r.drawObject(ball);
         r.show();

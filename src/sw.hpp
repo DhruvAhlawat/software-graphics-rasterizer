@@ -92,7 +92,7 @@ namespace COL781 {
 
 		Uint32 colorLerp(Uint32 c1, Uint32 c2, float t); // t must be between 0 and 1. 
 		void drawTriangle(triangle t, int supersampling = 1);
-
+		FragmentShader fsSpecularPointLighting();
 		private:
 			SDL_Window *window;
 			bool quit;
