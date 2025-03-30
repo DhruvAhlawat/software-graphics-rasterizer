@@ -6,3 +6,6 @@ Then compile the code using the standard CMake procedure:
 
 - The first time, run `cmake -B build` from the project root to create a `build/` directory and initialize a build system there.
 - Then, every time you want to compile the code, run `cmake --build build` (again from the project root). Then the example programs will be created under `build/`.
+
+example rendered image:
+![image](https://github.com/user-attachments/assets/6264f672-ba89-4315-b02e-7cb730801509)
